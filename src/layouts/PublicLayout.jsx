@@ -5,7 +5,9 @@ import { useAuth } from "../auth/AuthProvider";
 import { siteConfig } from "../lib/siteConfig";
 
 export default function PublicLayout() {
-  const { language, setLanguage, t } = useLanguage();
+  const currentWidth =
+    typeof window !== "undefined" ? window.innerWidth : 0;  
+const { language, setLanguage, t } = useLanguage();
   const { user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -53,6 +55,9 @@ export default function PublicLayout() {
 
   return (
     <div className="page-shell">
+      <div className="debug-viewport-badge">
+        width: {currentWidth}px
+      </div>
       <header className="site-header">
         <div className="container header-inner desktop-header">
           <div className="brand">
@@ -690,7 +695,26 @@ export default function PublicLayout() {
             grid-template-columns: 1fr;
           }
         }
-      `}</style>
+      `}
+        .debug-viewport-badge {
+          position: fixed;
+          top: 8px;
+          left: 8px;
+          z-index: 9999;
+          background: #dc2626;
+          color: white;
+          padding: 8px 10px;
+          border-radius: 10px;
+          font-size: 12px;
+          font-weight: 800;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+        }
+
+        @media (max-width: 768px) {
+          .debug-viewport-badge {
+            background: #16a34a;
+          }
+        }</style>
     </div>
   );
 }
