@@ -20,6 +20,7 @@ const initialForm = {
 
 export default function BookPage() {
   const { t, language } = useLanguage();
+
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -56,6 +57,12 @@ export default function BookPage() {
         : "The bookings table is missing one or more columns expected by the form.";
     }
 
+    if (raw.includes("network")) {
+      return language === "vi"
+        ? "Kết nối mạng gặp vấn đề. Vui lòng thử lại."
+        : "There was a network issue. Please try again.";
+    }
+
     return language === "vi"
       ? `Gửi yêu cầu thất bại: ${error?.message || "Vui lòng kiểm tra lại Supabase và thử lại."}`
       : `Failed to submit booking: ${error?.message || "Please check Supabase and try again."}`;
@@ -63,6 +70,7 @@ export default function BookPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log("SUBMIT CLICKED");
 
     if (submitting) return;
 
@@ -86,7 +94,11 @@ export default function BookPage() {
         status: "new",
       };
 
+      console.log("PAYLOAD ABOUT TO SEND:", payload);
+
       const { error } = await supabase.from("bookings").insert([payload]);
+
+      console.log("SUPABASE RESPONSE ERROR:", error);
 
       if (error) {
         console.error("Supabase insert error:", error);
