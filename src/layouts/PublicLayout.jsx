@@ -171,6 +171,9 @@ export default function PublicLayout() {
 
       <main className="main-content">
         <div className="container content-container">
+         <div style={{ background: "red", color: "white", padding: 12, fontWeight: 800}}>
+		MOBILE LAYOUT ACTIVE
+	 </div>
           <Outlet />
         </div>
       </main>
