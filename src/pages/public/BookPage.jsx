@@ -70,11 +70,7 @@ export default function BookPage() {
   }
 
   async function insertBookingWithTimeout(payload) {
-    const requestPromise = supabase
-      .from("bookings")
-      .insert([payload])
-      .select("id")
-      .single();
+    const requestPromise = supabase.from("bookings").insert([payload]);
 
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
