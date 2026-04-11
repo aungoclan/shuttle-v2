@@ -18,8 +18,6 @@ const initialForm = {
   notes: "",
 };
 
-const REQUEST_TIMEOUT_MS = 15000;
-
 export default function BookPage() {
   const { t, language } = useLanguage();
   const [form, setForm] = useState(initialForm);
@@ -58,27 +56,9 @@ export default function BookPage() {
         : "The bookings table is missing one or more columns expected by the form.";
     }
 
-    if (raw.includes("timeout")) {
-      return language === "vi"
-        ? "Yêu cầu gửi booking bị quá thời gian chờ. Vui lòng thử lại."
-        : "The booking request timed out. Please try again.";
-    }
-
     return language === "vi"
       ? `Gửi yêu cầu thất bại: ${error?.message || "Vui lòng kiểm tra lại Supabase và thử lại."}`
       : `Failed to submit booking: ${error?.message || "Please check Supabase and try again."}`;
-  }
-
-  async function insertBookingWithTimeout(payload) {
-    const requestPromise = supabase.from("bookings").insert([payload]);
-
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        reject(new Error("Request timeout"));
-      }, REQUEST_TIMEOUT_MS);
-    });
-
-    return Promise.race([requestPromise, timeoutPromise]);
   }
 
   async function handleSubmit(e) {
@@ -106,8 +86,7 @@ export default function BookPage() {
         status: "new",
       };
 
-      const result = await insertBookingWithTimeout(payload);
-      const error = result?.error;
+      const { error } = await supabase.from("bookings").insert([payload]);
 
       if (error) {
         console.error("Supabase insert error:", error);
