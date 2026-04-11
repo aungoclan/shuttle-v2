@@ -694,9 +694,7 @@ const { language, setLanguage, t } = useLanguage();
           .footer-grid {
             grid-template-columns: 1fr;
           }
-        }
-      `}
-        .debug-viewport-badge {
+.debug-viewport-badge {
           position: fixed;
           top: 8px;
           left: 8px;
@@ -714,7 +712,10 @@ const { language, setLanguage, t } = useLanguage();
           .debug-viewport-badge {
             background: #16a34a;
           }
-        }</style>
+        }
+        }
+      `}
+        </style>
     </div>
   );
 }
