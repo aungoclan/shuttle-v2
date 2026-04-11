@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageProvider";
 import { supabase } from "../../lib/supabase";
+import { siteConfig } from "../../lib/siteConfig";
 
 const initialForm = {
   fullName: "",
@@ -17,6 +18,8 @@ const initialForm = {
   notes: "",
 };
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 export default function BookPage() {
   const { t, language } = useLanguage();
   const [form, setForm] = useState(initialForm);
@@ -29,42 +32,100 @@ export default function BookPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function getFriendlyErrorMessage(error) {
+    const raw = String(error?.message || error || "").toLowerCase();
+
+    if (
+      raw.includes("row-level security") ||
+      raw.includes("new row violates row-level security") ||
+      raw.includes("permission denied") ||
+      raw.includes("403")
+    ) {
+      return language === "vi"
+        ? "Supabase đang chặn quyền gửi booking. Hãy kiểm tra RLS policy cho bảng bookings."
+        : "Supabase is blocking booking inserts. Please check the RLS policy for the bookings table.";
+    }
+
+    if (raw.includes("invalid input syntax")) {
+      return language === "vi"
+        ? "Một số dữ liệu gửi lên chưa đúng định dạng."
+        : "Some submitted fields have an invalid format.";
+    }
+
+    if (raw.includes("column") && raw.includes("does not exist")) {
+      return language === "vi"
+        ? "Bảng bookings đang thiếu cột so với dữ liệu form gửi lên."
+        : "The bookings table is missing one or more columns expected by the form.";
+    }
+
+    if (raw.includes("timeout")) {
+      return language === "vi"
+        ? "Yêu cầu gửi booking bị quá thời gian chờ. Vui lòng thử lại."
+        : "The booking request timed out. Please try again.";
+    }
+
+    return language === "vi"
+      ? `Gửi yêu cầu thất bại: ${error?.message || "Vui lòng kiểm tra lại Supabase và thử lại."}`
+      : `Failed to submit booking: ${error?.message || "Please check Supabase and try again."}`;
+  }
+
+  async function insertBookingWithTimeout(payload) {
+    const requestPromise = supabase
+      .from("bookings")
+      .insert([payload])
+      .select("id")
+      .single();
+
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error("Request timeout"));
+      }, REQUEST_TIMEOUT_MS);
+    });
+
+    return Promise.race([requestPromise, timeoutPromise]);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (submitting) return;
+
     setSubmitting(true);
     setSubmitError("");
 
-    const payload = {
-      full_name: form.fullName,
-      phone: form.phone,
-      email: form.email || null,
-      service_type: form.serviceType,
-      pickup_location: form.pickupLocation,
-      dropoff_location: form.dropoffLocation,
-      pickup_date: form.pickupDate,
-      pickup_time: form.pickupTime,
-      passengers: form.passengers,
-      luggage: form.luggage,
-      preferred_contact: form.preferredContact,
-      notes: form.notes || null,
-      status: "new",
-    };
+    try {
+      const payload = {
+        full_name: form.fullName.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim() || null,
+        service_type: form.serviceType,
+        pickup_location: form.pickupLocation.trim(),
+        dropoff_location: form.dropoffLocation.trim(),
+        pickup_date: form.pickupDate,
+        pickup_time: form.pickupTime,
+        passengers: form.passengers,
+        luggage: form.luggage,
+        preferred_contact: form.preferredContact,
+        notes: form.notes.trim() || null,
+        status: "new",
+      };
 
-    const { error } = await supabase.from("bookings").insert([payload]);
+      const result = await insertBookingWithTimeout(payload);
+      const error = result?.error;
 
-    if (error) {
-      console.error("Supabase insert error:", error);
-      setSubmitError(
-        language === "vi"
-          ? "Gửi yêu cầu thất bại. Vui lòng kiểm tra lại cấu hình Supabase hoặc thử lại."
-          : "Failed to submit booking. Please check your Supabase setup or try again."
-      );
+      if (error) {
+        console.error("Supabase insert error:", error);
+        setSubmitError(getFriendlyErrorMessage(error));
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Unexpected submit error:", err);
+      setSubmitError(getFriendlyErrorMessage(err));
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    setSubmitting(false);
-    setSubmitted(true);
   }
 
   function resetForm() {
@@ -151,8 +212,14 @@ export default function BookPage() {
           }}
         >
           <InfoCard label={t("booking.serviceType")} value={form.serviceType} />
-          <InfoCard label={t("booking.pickupLocation")} value={form.pickupLocation || "-"} />
-          <InfoCard label={t("booking.dropoffLocation")} value={form.dropoffLocation || "-"} />
+          <InfoCard
+            label={t("booking.pickupLocation")}
+            value={form.pickupLocation || "-"}
+          />
+          <InfoCard
+            label={t("booking.dropoffLocation")}
+            value={form.dropoffLocation || "-"}
+          />
           <InfoCard
             label={`${t("booking.pickupDate")} / ${t("booking.pickupTime")}`}
             value={
@@ -175,7 +242,7 @@ export default function BookPage() {
             {t("booking.submitAnother")}
           </button>
 
-          <a href="tel:+19160000000" style={ghostBtn}>
+          <a href={`tel:${siteConfig.phone}`} style={ghostBtn}>
             {t("common.callNow")}
           </a>
         </div>
@@ -326,6 +393,7 @@ export default function BookPage() {
                 color: "#991b1b",
                 border: "1px solid #fecaca",
                 fontWeight: 600,
+                lineHeight: 1.6,
               }}
             >
               {submitError}
@@ -351,7 +419,7 @@ export default function BookPage() {
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                placeholder="(916) 000-0000"
+                placeholder={siteConfig.phoneDisplay}
                 style={inputStyle}
                 required
               />
@@ -508,7 +576,15 @@ export default function BookPage() {
               alignItems: "center",
             }}
           >
-            <button type="submit" style={primaryBtn} disabled={submitting}>
+            <button
+              type="submit"
+              style={{
+                ...primaryBtn,
+                opacity: submitting ? 0.8 : 1,
+                pointerEvents: submitting ? "none" : "auto",
+              }}
+              disabled={submitting}
+            >
               {submitting
                 ? language === "vi"
                   ? "Đang gửi..."
@@ -516,7 +592,7 @@ export default function BookPage() {
                 : t("booking.submit")}
             </button>
 
-            <a href="tel:+19160000000" style={ghostBtn}>
+            <a href={`tel:${siteConfig.phone}`} style={ghostBtn}>
               {t("booking.callInstead")}
             </a>
           </div>
