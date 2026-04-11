@@ -1,13 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageProvider";
 import { useAuth } from "../auth/AuthProvider";
 import { siteConfig } from "../lib/siteConfig";
 
 export default function PublicLayout() {
-  const currentWidth =
-    typeof window !== "undefined" ? window.innerWidth : 0;  
-const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -53,37 +51,43 @@ const { language, setLanguage, t } = useLanguage();
     setMobileMenuOpen(false);
   }
 
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <div className="page-shell">
-      <div className="debug-viewport-badge">
-        width: {currentWidth}px
-      </div>
       <header className="site-header">
         <div className="container header-inner desktop-header">
-          <div className="brand">
+          <Link to="/" className="brand">
             <div className="brand-badge">S</div>
             <div className="brand-text">
               <div className="brand-title">{siteConfig.brand}</div>
               <div className="brand-subtitle">{tagline}</div>
             </div>
-          </div>
+          </Link>
 
           <nav className="nav">
             <Link to="/">{t("common.home")}</Link>
-            <Link to="/services">{language === "vi" ? "Dịch vụ" : "Services"}</Link>
-            <Link to="/about">{language === "vi" ? "Giới thiệu" : "About"}</Link>
+            <Link to="/services">
+              {language === "vi" ? "Dịch vụ" : "Services"}
+            </Link>
+            <Link to="/about">
+              {language === "vi" ? "Giới thiệu" : "About"}
+            </Link>
             <Link to="/book">{t("common.book")}</Link>
             <Link to="/contact">{t("common.contact")}</Link>
             {user && isAdmin && <Link to="/admin">{t("common.admin")}</Link>}
           </nav>
 
-          <div className="header-actions" style={{ flexWrap: "wrap" }}>
+          <div className="header-actions">
             <LanguageSwitch language={language} setLanguage={setLanguage} />
-
             <a className="btn btn-ghost" href={`tel:${siteConfig.phone}`}>
               {t("common.callNow")}
             </a>
-
             <Link className="btn btn-primary" to="/book">
               {t("common.reserveRide")}
             </Link>
@@ -100,9 +104,11 @@ const { language, setLanguage, t } = useLanguage();
           </Link>
 
           <div className="mobile-topbar-actions">
-            <div className="mobile-language-wrap">
-              <LanguageSwitch language={language} setLanguage={setLanguage} compact />
-            </div>
+            <LanguageSwitch
+              language={language}
+              setLanguage={setLanguage}
+              compact
+            />
 
             <button
               className="mobile-menu-button"
@@ -167,8 +173,11 @@ const { language, setLanguage, t } = useLanguage();
           <a href={`tel:${siteConfig.phone}`} className="mobile-drawer-call">
             {t("common.callNow")}
           </a>
-
-          <Link to="/book" className="mobile-drawer-book" onClick={closeMobileMenu}>
+          <Link
+            to="/book"
+            className="mobile-drawer-book"
+            onClick={closeMobileMenu}
+          >
             {t("common.reserveRide")}
           </Link>
         </div>
@@ -176,9 +185,6 @@ const { language, setLanguage, t } = useLanguage();
 
       <main className="main-content">
         <div className="container content-container">
-         <div style={{ background: "red", color: "white", padding: 12, fontWeight: 800}}>
-		MOBILE LAYOUT ACTIVE
-	 </div>
           <Outlet />
         </div>
       </main>
@@ -187,22 +193,13 @@ const { language, setLanguage, t } = useLanguage();
         <div className="container footer-container">
           <div className="footer-grid">
             <div>
-              <div className="brand" style={{ alignItems: "flex-start" }}>
-                <div
-                  className="brand-badge"
-                  style={{
-                    background: "linear-gradient(135deg, #ffffff, #cbd5e1)",
-                    color: "#0f172a",
-                  }}
-                >
-                  S
-                </div>
-
+              <div className="brand footer-brand">
+                <div className="brand-badge footer-badge">S</div>
                 <div className="brand-text">
-                  <div className="brand-title" style={{ color: "white", fontSize: 16 }}>
+                  <div className="brand-title footer-brand-title">
                     {siteConfig.brand}
                   </div>
-                  <div className="brand-subtitle" style={{ color: "#94a3b8" }}>
+                  <div className="brand-subtitle footer-brand-subtitle">
                     {tagline}
                   </div>
                 </div>
@@ -280,11 +277,15 @@ const { language, setLanguage, t } = useLanguage();
       </div>
 
       <style>{`
+        .page-shell {
+          min-height: 100vh;
+        }
+
         .site-header {
           position: sticky;
           top: 0;
           z-index: 80;
-          background: rgba(255,255,255,0.9);
+          background: rgba(255,255,255,0.92);
           backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(15,23,42,0.08);
         }
@@ -345,6 +346,7 @@ const { language, setLanguage, t } = useLanguage();
           display: flex;
           align-items: center;
           gap: 12px;
+          flex-wrap: wrap;
         }
 
         .btn {
@@ -356,6 +358,7 @@ const { language, setLanguage, t } = useLanguage();
           font-weight: 800;
           text-decoration: none;
           transition: 0.2s ease;
+          white-space: nowrap;
         }
 
         .btn-ghost {
@@ -397,6 +400,24 @@ const { language, setLanguage, t } = useLanguage();
           display: grid;
           grid-template-columns: 1.2fr 0.8fr 0.9fr 1fr;
           gap: 24px;
+        }
+
+        .footer-brand {
+          align-items: flex-start;
+        }
+
+        .footer-badge {
+          background: linear-gradient(135deg, #ffffff, #cbd5e1);
+          color: #0f172a;
+        }
+
+        .footer-brand-title {
+          color: white;
+          font-size: 16px;
+        }
+
+        .footer-brand-subtitle {
+          color: #94a3b8;
         }
 
         .footer-heading {
@@ -481,6 +502,7 @@ const { language, setLanguage, t } = useLanguage();
             gap: 10px;
             text-decoration: none;
             min-width: 0;
+            max-width: calc(100% - 132px);
           }
 
           .mobile-brand-text {
@@ -492,6 +514,9 @@ const { language, setLanguage, t } = useLanguage();
             font-weight: 800;
             font-size: 15px;
             letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .mobile-brand-subtitle {
@@ -507,10 +532,6 @@ const { language, setLanguage, t } = useLanguage();
             flex-shrink: 0;
           }
 
-          .mobile-language-wrap {
-            min-width: 96px;
-          }
-
           .mobile-menu-button {
             width: 44px;
             height: 44px;
@@ -523,6 +544,7 @@ const { language, setLanguage, t } = useLanguage();
             justify-content: center;
             gap: 4px;
             cursor: pointer;
+            flex-shrink: 0;
           }
 
           .mobile-menu-button span {
@@ -561,6 +583,7 @@ const { language, setLanguage, t } = useLanguage();
             box-shadow: -10px 0 30px rgba(15,23,42,0.12);
             transform: translateX(100%);
             transition: transform 0.28s ease;
+            overflow-y: auto;
           }
 
           .mobile-drawer.open {
@@ -694,28 +717,12 @@ const { language, setLanguage, t } = useLanguage();
           .footer-grid {
             grid-template-columns: 1fr;
           }
-.debug-viewport-badge {
-          position: fixed;
-          top: 8px;
-          left: 8px;
-          z-index: 9999;
-          background: #dc2626;
-          color: white;
-          padding: 8px 10px;
-          border-radius: 10px;
-          font-size: 12px;
-          font-weight: 800;
-          box-shadow: 0 10px 20px rgba(0,0,0,0.18);
-        }
 
-        @media (max-width: 768px) {
-          .debug-viewport-badge {
-            background: #16a34a;
+          .footer-bottom {
+            flex-direction: column;
           }
         }
-        }
-      `}
-        </style>
+      `}</style>
     </div>
   );
 }
