@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageProvider";
-import { supabase } from "../../lib/supabase";
+import { supabasePublic } from "../../lib/supabasePublic";
 import { siteConfig } from "../../lib/siteConfig";
 
 const initialForm = {
@@ -70,7 +70,6 @@ export default function BookPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log("SUBMIT CLICKED");
 
     if (submitting) return;
 
@@ -94,14 +93,10 @@ export default function BookPage() {
         status: "new",
       };
 
-      console.log("PAYLOAD ABOUT TO SEND:", payload);
-
-      const { error } = await supabase.from("bookings").insert([payload]);
-
-      console.log("SUPABASE RESPONSE ERROR:", error);
+      const { error } = await supabasePublic.from("bookings").insert([payload]);
 
       if (error) {
-        console.error("Supabase insert error:", error);
+        console.error("Public booking insert error:", error);
         setSubmitError(getFriendlyErrorMessage(error));
         return;
       }
