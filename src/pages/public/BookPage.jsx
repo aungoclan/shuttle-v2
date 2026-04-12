@@ -92,14 +92,30 @@ export default function BookPage() {
         notes: form.notes.trim() || null,
         status: "new",
       };
+	const { error } = await supabasePublic.from("bookings").insert([payload]);
 
-      const { error } = await supabasePublic.from("bookings").insert([payload]);
+if (error) {
+  console.error("DB error:", error);
+  setSubmitError(getFriendlyErrorMessage(error));
+  return;
+}
+      const res = await fetch(
+  "https://labkqgghnczvpgugkcsm.supabase.co/functions/v1/send-booking",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  }
+);
 
-      if (error) {
-        console.error("Public booking insert error:", error);
-        setSubmitError(getFriendlyErrorMessage(error));
-        return;
-      }
+const result = await res.json();
+
+if (!res.ok) {
+  throw new Error(result.error || "Failed to send booking");
+}
+      
 
       setSubmitted(true);
     } catch (err) {
