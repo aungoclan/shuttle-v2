@@ -1,0 +1,35 @@
+name: Auto Backup Project
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Create timestamp
+        id: timestamp
+        run: echo "value=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Create backup zip
+        run: |
+          zip -r shuttle-v2-backup-${{ steps.timestamp.outputs.value }}.zip . \
+            -x "*.git*" \
+               "node_modules/*" \
+               "dist/*" \
+               ".env" \
+               ".DS_Store"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shuttle-v2-backup-${{ steps.timestamp.outputs.value }}
+          path: shuttle-v2-backup-${{ steps.timestamp.outputs.value }}.zip
+          retention-days: 30
