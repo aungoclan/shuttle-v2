@@ -3,9 +3,8 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 
 export default function AdminLogin() {
-  const { session, isAdmin, loadingAuth, signIn, signUp } = useAuth();
+  const { session, isAdmin, loadingAuth, signIn } = useAuth();
 
-  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,12 +17,13 @@ export default function AdminLogin() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (submitting) return;
+
     setSubmitting(true);
     setMessage("");
     setErrorText("");
 
-    const action = mode === "login" ? signIn : signUp;
-    const { error } = await action(email, password);
+    const { error } = await signIn(email.trim(), password);
 
     if (error) {
       setErrorText(error.message || "Authentication failed.");
@@ -31,14 +31,7 @@ export default function AdminLogin() {
       return;
     }
 
-    if (mode === "signup") {
-      setMessage(
-        "Đăng ký thành công. Nếu project của bạn bật xác nhận email, hãy xác nhận email trước. Sau đó thêm user này vào bảng admin_users để cấp quyền admin."
-      );
-    } else {
-      setMessage("Đăng nhập thành công. Đang kiểm tra quyền admin...");
-    }
-
+    setMessage("Đăng nhập thành công. Đang kiểm tra quyền admin...");
     setSubmitting(false);
   }
 
@@ -86,13 +79,11 @@ export default function AdminLogin() {
               letterSpacing: "-0.03em",
             }}
           >
-            {mode === "login" ? "Đăng nhập admin" : "Tạo tài khoản admin"}
+            Đăng nhập admin
           </h1>
 
           <p style={{ margin: 0, color: "#64748b", lineHeight: 1.7 }}>
-            {mode === "login"
-              ? "Chỉ tài khoản đã được thêm vào bảng admin_users mới vào được khu vực quản trị."
-              : "Sau khi tạo tài khoản, bạn cần thêm user đó vào bảng admin_users trong Supabase để cấp quyền admin."}
+            Chỉ tài khoản đã được cấp quyền trong bảng admin_users mới truy cập được khu vực quản trị.
           </p>
         </div>
 
@@ -105,6 +96,7 @@ export default function AdminLogin() {
               placeholder="admin@example.com"
               style={inputStyle}
               required
+              autoComplete="email"
             />
           </Field>
 
@@ -116,6 +108,7 @@ export default function AdminLogin() {
               placeholder="••••••••"
               style={inputStyle}
               required
+              autoComplete="current-password"
             />
           </Field>
 
@@ -151,33 +144,13 @@ export default function AdminLogin() {
           )}
 
           <button type="submit" style={primaryBtn} disabled={submitting}>
-            {submitting
-              ? "Đang xử lý..."
-              : mode === "login"
-              ? "Đăng nhập"
-              : "Tạo tài khoản"}
+            {submitting ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
 
-        <div style={{ marginTop: 18, color: "#64748b" }}>
-          {mode === "login" ? "Chưa có tài khoản?" : "Đã có tài khoản?"}{" "}
-          <button
-            type="button"
-            onClick={() =>
-              setMode((prev) => (prev === "login" ? "signup" : "login"))
-            }
-            style={{
-              border: 0,
-              background: "transparent",
-              color: "#0f172a",
-              fontWeight: 800,
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            {mode === "login" ? "Tạo tài khoản mới" : "Quay lại đăng nhập"}
-          </button>
-        </div>
+        <p style={{ marginTop: 18, color: "#64748b", lineHeight: 1.7 }}>
+          Tạo tài khoản admin mới nên thực hiện trực tiếp trong Supabase Auth để tránh mở public signup trên production.
+        </p>
       </div>
     </div>
   );
