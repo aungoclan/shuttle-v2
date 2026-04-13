@@ -80,7 +80,7 @@ export default function BookPage() {
       const payload = {
         full_name: form.fullName.trim(),
         phone: form.phone.trim(),
-        email: form.email.trim() || null,
+        email: form.email.trim(),
         service_type: form.serviceType,
         pickup_location: form.pickupLocation.trim(),
         dropoff_location: form.dropoffLocation.trim(),
@@ -92,6 +92,7 @@ export default function BookPage() {
         notes: form.notes.trim() || null,
         status: "new",
       };
+	console.log("Submitting booking payload:", payload);
 	const { error } = await supabasePublic.from("bookings").insert([payload]);
 
 if (error) {
@@ -110,10 +111,18 @@ if (error) {
   }
 );
 
-const result = await res.json();
+let result = null;
+
+try {
+  result = await res.json();
+} catch {
+  result = null;
+}
+
+console.log("send-booking response:", result);
 
 if (!res.ok) {
-  throw new Error(result.error || "Failed to send booking");
+  throw new Error(result?.error || "Failed to send booking");
 }
       
 
@@ -274,16 +283,17 @@ if (!res.ok) {
             </div>
 
             <div className="book-grid-2">
-              <Field label={t("booking.email")}>
-                <input
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  type="email"
-                  className="book-input"
-                />
-              </Field>
+             <Field label={t("booking.email")}>
+  <input
+    name="email"
+    value={form.email}
+    onChange={handleChange}
+    placeholder="you@example.com"
+    type="email"
+    className="book-input"
+    required
+  />
+</Field>
 
               <Field label={t("booking.preferredContact")}>
                 <select
