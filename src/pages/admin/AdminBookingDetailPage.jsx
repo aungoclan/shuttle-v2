@@ -4,6 +4,16 @@ import { supabase } from "../../lib/supabase";
 
 const statusOptions = ["new", "confirmed", "completed", "cancelled"];
 
+function getConfirmationFunctionUrl() {
+  const configured = import.meta.env.VITE_CONFIRMATION_FUNCTION_URL?.trim();
+  if (configured) return configured;
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+  if (!supabaseUrl) return "";
+
+  return `${supabaseUrl}/functions/v1/send-confirmation`;
+}
+
 export default function AdminBookingDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,6 +25,7 @@ export default function AdminBookingDetailPage() {
   const [successText, setSuccessText] = useState("");
   const [internalNote, setInternalNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [sendingConfirmation, setSendingConfirmation] = useState(false);
 
   useEffect(() => {
     fetchBooking();
@@ -97,6 +108,86 @@ export default function AdminBookingDetailPage() {
     setSavingNote(false);
   }
 
+  async function handleConfirmAndSendEmail() {
+    if (!booking) return;
+    if (!booking.email) {
+      setErrorText("Booking này chưa có email khách hàng để gửi xác nhận.");
+      return;
+    }
+
+    const functionUrl = getConfirmationFunctionUrl();
+    if (!functionUrl) {
+      setErrorText("Thiếu VITE_SUPABASE_URL hoặc VITE_CONFIRMATION_FUNCTION_URL.");
+      return;
+    }
+
+    setSendingConfirmation(true);
+    setErrorText("");
+    setSuccessText("");
+
+    try {
+      const payload = {
+        id: booking.id,
+        booking_code: booking.booking_code || booking.id,
+        full_name: booking.full_name,
+        phone: booking.phone,
+        email: booking.email,
+        service_type: booking.service_type,
+        pickup_location: booking.pickup_location,
+        dropoff_location: booking.dropoff_location,
+        pickup_date: booking.pickup_date,
+        pickup_time: booking.pickup_time,
+        passengers: booking.passengers,
+        luggage: booking.luggage,
+        preferred_contact: booking.preferred_contact,
+        notes: booking.notes,
+      };
+
+      const mailResponse = await fetch(functionUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const mailResult = await mailResponse.json().catch(() => null);
+
+      if (!mailResponse.ok || !mailResult?.success) {
+        throw new Error(mailResult?.error || "Gửi email xác nhận thất bại.");
+      }
+
+      const sentAt = new Date().toISOString();
+      const nextStatus = booking.status === "completed" ? "completed" : "confirmed";
+
+      const { error } = await supabase
+        .from("bookings")
+        .update({
+          status: nextStatus,
+          confirmation_sent_at: sentAt,
+          confirmation_email: booking.email,
+        })
+        .eq("id", booking.id);
+
+      if (error) {
+        throw new Error("Email đã gửi nhưng không cập nhật được trạng thái trong database.");
+      }
+
+      setBooking((prev) => ({
+        ...prev,
+        status: nextStatus,
+        confirmation_sent_at: sentAt,
+        confirmation_email: booking.email,
+      }));
+      setSuccessText("Đã gửi email xác nhận cho khách và cập nhật trạng thái booking.");
+    } catch (error) {
+      console.error("Send confirmation error:", error);
+      setErrorText(error instanceof Error ? error.message : "Gửi email xác nhận thất bại.");
+    } finally {
+      setSendingConfirmation(false);
+    }
+  }
+
   return (
     <div style={{ display: "grid", gap: 24 }}>
       <section
@@ -139,8 +230,7 @@ export default function AdminBookingDetailPage() {
                 fontSize: 16,
               }}
             >
-              Xem đầy đủ thông tin yêu cầu đặt xe, cập nhật trạng thái và lưu
-              ghi chú nội bộ cho admin.
+              Xem đầy đủ thông tin yêu cầu đặt xe, cập nhật trạng thái, gửi email xác nhận cho khách và lưu ghi chú nội bộ cho admin.
             </p>
           </div>
 
@@ -218,8 +308,11 @@ export default function AdminBookingDetailPage() {
                     {booking.full_name || "Không có tên"}
                   </h2>
 
-                  <div style={{ marginTop: 10 }}>
+                  <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
                     <StatusBadge status={booking.status} />
+                    <span style={codeBadgeStyle}>
+                      {booking.booking_code || booking.id}
+                    </span>
                   </div>
                 </div>
 
@@ -230,9 +323,9 @@ export default function AdminBookingDetailPage() {
                     textAlign: "right",
                   }}
                 >
-                  <div>Mã booking</div>
+                  <div>Tạo lúc</div>
                   <div style={{ marginTop: 6, fontWeight: 700, color: "#0f172a" }}>
-                    {booking.booking_code || booking.id}
+                    {formatDateTime(booking.created_at)}
                   </div>
                 </div>
               </div>
@@ -241,33 +334,16 @@ export default function AdminBookingDetailPage() {
                 <DetailItem label="Họ tên" value={booking.full_name} />
                 <DetailItem label="Số điện thoại" value={booking.phone} />
                 <DetailItem label="Email" value={booking.email || "Không có"} />
-                <DetailItem
-                  label="Loại dịch vụ"
-                  value={booking.service_type || "-"}
-                />
-                <DetailItem
-                  label="Điểm đón"
-                  value={booking.pickup_location || "-"}
-                />
-                <DetailItem
-                  label="Điểm đến"
-                  value={booking.dropoff_location || "-"}
-                />
+                <DetailItem label="Loại dịch vụ" value={booking.service_type || "-"} />
+                <DetailItem label="Điểm đón" value={booking.pickup_location || "-"} />
+                <DetailItem label="Điểm đến" value={booking.dropoff_location || "-"} />
                 <DetailItem label="Ngày đi" value={booking.pickup_date || "-"} />
                 <DetailItem label="Giờ đi" value={booking.pickup_time || "-"} />
-                <DetailItem
-                  label="Số khách"
-                  value={booking.passengers || "-"}
-                />
+                <DetailItem label="Số khách" value={booking.passengers || "-"} />
                 <DetailItem label="Hành lý" value={booking.luggage || "-"} />
-                <DetailItem
-                  label="Liên hệ ưu tiên"
-                  value={booking.preferred_contact || "-"}
-                />
-                <DetailItem
-                  label="Tạo lúc"
-                  value={formatDateTime(booking.created_at)}
-                />
+                <DetailItem label="Liên hệ ưu tiên" value={booking.preferred_contact || "-"} />
+                <DetailItem label="Email xác nhận lần cuối" value={booking.confirmation_email || "Chưa gửi"} />
+                <DetailItem label="Đã gửi xác nhận lúc" value={formatDateTime(booking.confirmation_sent_at)} />
               </div>
 
               <div style={{ marginTop: 22 }}>
@@ -336,7 +412,7 @@ export default function AdminBookingDetailPage() {
                 <select
                   value={booking.status || "new"}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  disabled={updating}
+                  disabled={updating || sendingConfirmation}
                   style={{
                     width: "100%",
                     marginTop: 16,
@@ -386,6 +462,72 @@ export default function AdminBookingDetailPage() {
                     letterSpacing: "-0.03em",
                   }}
                 >
+                  Gửi email xác nhận cho khách
+                </h3>
+
+                <p
+                  style={{
+                    margin: "10px 0 0",
+                    color: "#64748b",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  Nút này sẽ gửi email confirmation chính thức cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã xác nhận</strong> nếu booking chưa completed.
+                </p>
+
+                <div
+                  style={{
+                    marginTop: 16,
+                    background: booking.email ? "#f8fafc" : "#fef2f2",
+                    border: booking.email
+                      ? "1px solid rgba(15,23,42,0.08)"
+                      : "1px solid #fecaca",
+                    borderRadius: 16,
+                    padding: 16,
+                    color: booking.email ? "#334155" : "#991b1b",
+                    lineHeight: 1.7,
+                    fontSize: 14,
+                  }}
+                >
+                  <div>
+                    <strong>Email khách:</strong> {booking.email || "Booking này chưa có email"}
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Lần gửi gần nhất:</strong> {formatDateTime(booking.confirmation_sent_at)}
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleConfirmAndSendEmail}
+                  disabled={sendingConfirmation || !booking.email}
+                  style={{
+                    marginTop: 14,
+                    ...primaryBtn,
+                    opacity: sendingConfirmation || !booking.email ? 0.6 : 1,
+                    cursor: sendingConfirmation || !booking.email ? "not-allowed" : "pointer",
+                    width: "100%",
+                  }}
+                >
+                  {sendingConfirmation ? "Đang gửi email xác nhận..." : "Confirm + Send Email"}
+                </button>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.94)",
+                  border: "1px solid rgba(15,23,42,0.08)",
+                  borderRadius: 24,
+                  padding: 24,
+                  boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
+                }}
+              >
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: 22,
+                    letterSpacing: "-0.03em",
+                  }}
+                >
                   Ghi chú nội bộ admin
                 </h3>
 
@@ -396,8 +538,7 @@ export default function AdminBookingDetailPage() {
                     lineHeight: 1.7,
                   }}
                 >
-                  Dùng phần này để ghi các lưu ý nội bộ như đã gọi khách, chốt
-                  giá, ghi chú đón khách hoặc tình trạng xử lý.
+                  Dùng phần này để ghi các lưu ý nội bộ như đã gọi khách, chốt giá, ghi chú đón khách hoặc tình trạng xử lý.
                 </p>
 
                 <textarea
@@ -469,7 +610,7 @@ export default function AdminBookingDetailPage() {
 
                   {booking.email && (
                     <a href={`mailto:${booking.email}`} style={ghostBtn}>
-                      Gửi email
+                      Mở email khách
                     </a>
                   )}
                 </div>
@@ -587,7 +728,7 @@ function formatStatusLabel(status) {
 }
 
 function formatDateTime(value) {
-  if (!value) return "-";
+  if (!value) return "Chưa có";
 
   const date = new Date(value);
 
@@ -613,6 +754,20 @@ const infoBox = {
   borderRadius: 16,
   background: "#f8fafc",
   color: "#334155",
+  border: "1px solid rgba(15,23,42,0.08)",
+};
+
+const codeBadgeStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "8px 12px",
+  borderRadius: 999,
+  background: "rgba(15,23,42,0.06)",
+  color: "#0f172a",
+  fontWeight: 800,
+  fontSize: 13,
+  whiteSpace: "nowrap",
   border: "1px solid rgba(15,23,42,0.08)",
 };
 
