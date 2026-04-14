@@ -86,7 +86,8 @@ export default function AdminBookingsPage() {
       const matchesDate = dateFilter ? booking.pickup_date === dateFilter : true;
 
       const haystack = [
-        booking.id,
+        booking.booking_code,
+      booking.id,
         booking.full_name,
         booking.phone,
         booking.email,
@@ -220,6 +221,7 @@ export default function AdminBookingsPage() {
     }
 
     const headers = [
+      "Booking Code",
       "ID",
       "Khach hang",
       "Phone",
@@ -234,6 +236,7 @@ export default function AdminBookingsPage() {
     ];
 
     const rows = filteredBookings.map((booking) => [
+      booking.booking_code,
       booking.id,
       booking.full_name,
       booking.phone,
@@ -350,7 +353,7 @@ export default function AdminBookingsPage() {
         >
           <input
             type="text"
-            placeholder="Tìm theo tên, phone, email, điểm đón, điểm đến"
+            placeholder="Tìm theo booking code, tên, phone, email, điểm đón, điểm đến"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{
@@ -543,7 +546,8 @@ export default function AdminBookingsPage() {
                       />
                     </td>
                     <td style={tdStyle}>
-                      <div style={{ fontWeight: 700, color: "#0f172a" }}>{booking.full_name || "—"}</div>
+                      <div style={{ fontWeight: 800, color: "#0f172a" }}>{booking.booking_code || booking.id}</div>
+                      <div style={{ marginTop: 6, fontWeight: 700, color: "#334155" }}>{booking.full_name || "—"}</div>
                       <div style={{ color: "#64748b", fontSize: 12, marginTop: 4 }}>{booking.id}</div>
                     </td>
                     <td style={tdStyle}>

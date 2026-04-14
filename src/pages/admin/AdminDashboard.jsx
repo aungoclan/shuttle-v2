@@ -31,25 +31,38 @@ export default function AdminDashboard() {
     setLoading(false);
   }
 
+  const todayKey = useMemo(() => new Date().toLocaleDateString("en-CA"), []);
+
+  const todayRides = useMemo(() => {
+    return bookings
+      .filter((item) => item.pickup_date === todayKey)
+      .sort((a, b) => {
+        const aTime = a.pickup_time || "99:99";
+        const bTime = b.pickup_time || "99:99";
+        return aTime.localeCompare(bTime);
+      });
+  }, [bookings, todayKey]);
+
   const stats = useMemo(() => {
-    const today = new Date();
-    const todayKey = today.toISOString().slice(0, 10);
+    const now = new Date();
 
     const total = bookings.length;
     const newCount = bookings.filter((item) => item.status === "new").length;
-    const confirmedCount = bookings.filter(
-      (item) => item.status === "confirmed"
-    ).length;
-    const completedCount = bookings.filter(
-      (item) => item.status === "completed"
-    ).length;
-    const cancelledCount = bookings.filter(
-      (item) => item.status === "cancelled"
-    ).length;
+    const confirmedCount = bookings.filter((item) => item.status === "confirmed").length;
+    const completedCount = bookings.filter((item) => item.status === "completed").length;
+    const cancelledCount = bookings.filter((item) => item.status === "cancelled").length;
 
-    const todayCount = bookings.filter((item) => {
-      if (!item.created_at) return false;
-      return item.created_at.slice(0, 10) === todayKey;
+    const ridesTodayCount = todayRides.length;
+    const unconfirmedTodayCount = todayRides.filter((item) => item.status === "new").length;
+    const completedTodayCount = todayRides.filter((item) => item.status === "completed").length;
+
+    const upcomingSoonCount = todayRides.filter((item) => {
+      if (!item.pickup_time) return false;
+
+      const rideTime = new Date(`${item.pickup_date}T${item.pickup_time}`);
+      const diffMs = rideTime.getTime() - now.getTime();
+
+      return diffMs >= 0 && diffMs <= 2 * 60 * 60 * 1000;
     }).length;
 
     return {
@@ -58,9 +71,12 @@ export default function AdminDashboard() {
       confirmedCount,
       completedCount,
       cancelledCount,
-      todayCount,
+      ridesTodayCount,
+      unconfirmedTodayCount,
+      completedTodayCount,
+      upcomingSoonCount,
     };
-  }, [bookings]);
+  }, [bookings, todayRides]);
 
   const recentBookings = useMemo(() => bookings.slice(0, 5), [bookings]);
 
@@ -106,8 +122,7 @@ export default function AdminDashboard() {
                 fontSize: 16,
               }}
             >
-              Xem nhanh tình trạng booking, số lượng yêu cầu mới và truy cập nhanh
-              sang trang quản lý booking.
+              Theo dõi nhanh rides hôm nay, các chuyến sắp tới trong 2 giờ và các booking mới cần xử lý.
             </p>
           </div>
 
@@ -147,36 +162,109 @@ export default function AdminDashboard() {
               gap: 16,
             }}
           >
-            <StatCard
-              label="Tổng booking"
-              value={String(stats.total)}
-              hint="Tất cả yêu cầu hiện có"
-            />
-            <StatCard
-              label="Booking hôm nay"
-              value={String(stats.todayCount)}
-              hint="Tạo trong ngày hôm nay"
-            />
-            <StatCard
-              label="Booking mới"
-              value={String(stats.newCount)}
-              hint="Chưa xử lý hoặc chưa xác nhận"
-            />
-            <StatCard
-              label="Đã xác nhận"
-              value={String(stats.confirmedCount)}
-              hint="Đã chốt với khách"
-            />
-            <StatCard
-              label="Hoàn thành"
-              value={String(stats.completedCount)}
-              hint="Đã chạy xong"
-            />
-            <StatCard
-              label="Đã hủy"
-              value={String(stats.cancelledCount)}
-              hint="Không tiếp tục chuyến"
-            />
+            <StatCard label="Tổng booking" value={String(stats.total)} hint="Toàn bộ hệ thống" />
+            <StatCard label="Rides hôm nay" value={String(stats.ridesTodayCount)} hint="Theo pickup date" />
+            <StatCard label="Sắp tới 2 giờ" value={String(stats.upcomingSoonCount)} hint="Cần ưu tiên xử lý" />
+            <StatCard label="Chưa xác nhận hôm nay" value={String(stats.unconfirmedTodayCount)} hint="Nên gọi lại sớm" />
+            <StatCard label="Hoàn thành hôm nay" value={String(stats.completedTodayCount)} hint="Đã chạy xong" />
+            <StatCard label="Đã xác nhận" value={String(stats.confirmedCount)} hint="Tổng số ride đã chốt" />
+          </section>
+
+          <section
+            style={{
+              background: "rgba(255,255,255,0.94)",
+              border: "1px solid rgba(15,23,42,0.08)",
+              borderRadius: 24,
+              padding: 24,
+              boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
+                marginBottom: 18,
+              }}
+            >
+              <div>
+                <h2 style={{ margin: 0, fontSize: 28, letterSpacing: "-0.03em" }}>
+                  Rides Today
+                </h2>
+                <p style={{ margin: "8px 0 0", color: "#64748b", lineHeight: 1.7 }}>
+                  Danh sách chuyến đón/trả hôm nay, sắp theo giờ pickup.
+                </p>
+              </div>
+
+              <Link to="/admin/bookings" style={primaryBtn}>
+                Xem tất cả booking
+              </Link>
+            </div>
+
+            {todayRides.length === 0 ? (
+              <div style={emptyBox}>Hôm nay chưa có chuyến nào.</div>
+            ) : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {todayRides.map((booking) => {
+                  const urgent = isUpcomingSoon(booking);
+
+                  return (
+                    <Link
+                      key={booking.id}
+                      to={`/admin/bookings/${booking.id}`}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                        background: urgent ? "#fff7ed" : "#f8fafc",
+                        border: urgent
+                          ? "1px solid rgba(249,115,22,0.28)"
+                          : "1px solid rgba(15,23,42,0.06)",
+                        borderRadius: 20,
+                        padding: 18,
+                        display: "grid",
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          alignItems: "start",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 18 }}>
+                            {booking.booking_code || booking.id}
+                          </div>
+                          <div style={{ marginTop: 4, fontWeight: 700 }}>
+                            {booking.full_name || "Không có tên"}
+                          </div>
+                          <div style={{ marginTop: 6, color: "#64748b" }}>
+                            {booking.phone || "—"}
+                          </div>
+                        </div>
+
+                        <StatusBadge status={booking.status} />
+                      </div>
+
+                      <div style={{ color: "#0f172a", fontWeight: 700 }}>
+                        {booking.pickup_time || "--:--"} • {booking.service_type || "Ride"}
+                      </div>
+
+                      <div style={{ color: "#475569", lineHeight: 1.7 }}>
+                        <strong>Pickup:</strong> {booking.pickup_location || "—"}
+                        <br />
+                        <strong>Dropoff:</strong> {booking.dropoff_location || "—"}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <section
@@ -266,6 +354,17 @@ export default function AdminDashboard() {
                               fontSize: 18,
                             }}
                           >
+                            {booking.booking_code || booking.id}
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: 6,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              fontSize: 16,
+                            }}
+                          >
                             {booking.full_name || "Không có tên"}
                           </div>
 
@@ -291,14 +390,8 @@ export default function AdminDashboard() {
                           gap: 10,
                         }}
                       >
-                        <MiniInfo
-                          label="Điểm đón"
-                          value={booking.pickup_location || "-"}
-                        />
-                        <MiniInfo
-                          label="Điểm đến"
-                          value={booking.dropoff_location || "-"}
-                        />
+                        <MiniInfo label="Điểm đón" value={booking.pickup_location || "-"} />
+                        <MiniInfo label="Điểm đến" value={booking.dropoff_location || "-"} />
                         <MiniInfo
                           label="Ngày giờ"
                           value={`${booking.pickup_date || "-"} ${booking.pickup_time || ""}`.trim()}
@@ -312,10 +405,7 @@ export default function AdminDashboard() {
                           flexWrap: "wrap",
                         }}
                       >
-                        <Link
-                          to={`/admin/bookings/${booking.id}`}
-                          style={primaryBtn}
-                        >
+                        <Link to={`/admin/bookings/${booking.id}`} style={primaryBtn}>
                           Xem chi tiết
                         </Link>
 
@@ -333,35 +423,59 @@ export default function AdminDashboard() {
 
             <div
               style={{
-                display: "grid",
-                gap: 18,
-                alignSelf: "start",
+                background: "rgba(255,255,255,0.94)",
+                border: "1px solid rgba(15,23,42,0.08)",
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
               }}
             >
-              <PanelCard
-                title="Việc nên ưu tiên"
-                text="Hãy xử lý booking có trạng thái “Mới” trước, sau đó xác nhận thời gian đón, điểm đón và cách liên hệ phù hợp với khách."
-              />
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 28,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Gợi ý xử lý nhanh
+              </h2>
 
-              <PanelCard
-                title="Quy trình gợi ý"
-                text="1) Xem booking mới → 2) Gọi hoặc nhắn xác nhận → 3) Đổi trạng thái sang Đã xác nhận → 4) Sau khi hoàn tất chuyến thì chuyển sang Hoàn thành."
-              />
+              <p
+                style={{
+                  margin: "10px 0 0",
+                  color: "#64748b",
+                  lineHeight: 1.75,
+                }}
+              >
+                Ưu tiên kiểm tra các ride sắp đến giờ pickup, sau đó xử lý các booking mới để tránh bỏ sót khách cần xác nhận gấp.
+              </p>
 
-              <PanelCard
-                title="Nâng cấp nên làm tiếp"
-                text="Dashboard hiện đã đủ để theo dõi nhanh. Bước tiếp theo nên là xuất CSV hoặc lọc theo ngày để tiện vận hành thực tế."
-              />
+              <div style={{ marginTop: 20, display: "grid", gap: 12 }}>
+                <ActionRow
+                  title="Chuyến sắp tới"
+                  value={`${stats.upcomingSoonCount} rides`}
+                  note="Các booking trong vòng 2 giờ tới"
+                />
+                <ActionRow
+                  title="Chưa xác nhận hôm nay"
+                  value={`${stats.unconfirmedTodayCount} rides`}
+                  note="Nên gọi lại hoặc nhắn khách sớm"
+                />
+                <ActionRow
+                  title="Booking mới toàn hệ thống"
+                  value={`${stats.newCount} rides`}
+                  note="Kiểm tra xem còn booking nào chưa xử lý"
+                />
+                <ActionRow
+                  title="Đã hủy"
+                  value={`${stats.cancelledCount} rides`}
+                  note="Rà lại để dọn lịch hoặc lưu ý vận hành"
+                />
+              </div>
             </div>
           </section>
 
-          <style>{`
-            @media (max-width: 900px) {
-              .dashboard-grid {
-                grid-template-columns: 1fr !important;
-              }
-            }
-          `}</style>
+          <style>{responsiveStyles}</style>
         </>
       )}
     </div>
@@ -374,16 +488,18 @@ function StatCard({ label, value, hint }) {
       style={{
         background: "rgba(255,255,255,0.94)",
         border: "1px solid rgba(15,23,42,0.08)",
-        borderRadius: 22,
+        borderRadius: 20,
         padding: 20,
-        boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
+        boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
       }}
     >
       <div
         style={{
-          fontSize: 13,
           color: "#64748b",
+          fontSize: 13,
           fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
         }}
       >
         {label}
@@ -392,10 +508,10 @@ function StatCard({ label, value, hint }) {
       <div
         style={{
           marginTop: 10,
-          fontSize: 32,
+          fontSize: 34,
           fontWeight: 800,
           color: "#0f172a",
-          letterSpacing: "-0.03em",
+          lineHeight: 1.1,
         }}
       >
         {value}
@@ -405,46 +521,12 @@ function StatCard({ label, value, hint }) {
         style={{
           marginTop: 8,
           color: "#64748b",
-          fontSize: 13,
+          fontSize: 14,
           lineHeight: 1.6,
         }}
       >
         {hint}
       </div>
-    </div>
-  );
-}
-
-function PanelCard({ title, text }) {
-  return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.94)",
-        border: "1px solid rgba(15,23,42,0.08)",
-        borderRadius: 24,
-        padding: 24,
-        boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
-      }}
-    >
-      <h3
-        style={{
-          margin: 0,
-          fontSize: 22,
-          letterSpacing: "-0.03em",
-        }}
-      >
-        {title}
-      </h3>
-
-      <p
-        style={{
-          margin: "12px 0 0",
-          color: "#64748b",
-          lineHeight: 1.8,
-        }}
-      >
-        {text}
-      </p>
     </div>
   );
 }
@@ -455,14 +537,16 @@ function MiniInfo({ label, value }) {
       style={{
         background: "white",
         borderRadius: 16,
-        padding: 14,
         border: "1px solid rgba(15,23,42,0.06)",
+        padding: "12px 14px",
       }}
     >
       <div
         style={{
+          color: "#94a3b8",
           fontSize: 12,
-          color: "#64748b",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
           fontWeight: 700,
         }}
       >
@@ -474,7 +558,7 @@ function MiniInfo({ label, value }) {
           marginTop: 6,
           color: "#0f172a",
           fontWeight: 700,
-          lineHeight: 1.5,
+          lineHeight: 1.6,
         }}
       >
         {value}
@@ -486,31 +570,36 @@ function MiniInfo({ label, value }) {
 function StatusBadge({ status }) {
   const map = {
     new: {
-      bg: "#eff6ff",
-      color: "#1d4ed8",
       label: "Mới",
+      background: "rgba(59,130,246,0.12)",
+      color: "#1d4ed8",
+      border: "1px solid rgba(59,130,246,0.24)",
     },
     confirmed: {
-      bg: "#ecfdf5",
-      color: "#047857",
       label: "Đã xác nhận",
+      background: "rgba(16,185,129,0.12)",
+      color: "#047857",
+      border: "1px solid rgba(16,185,129,0.24)",
     },
     completed: {
-      bg: "#f8fafc",
-      color: "#334155",
       label: "Hoàn thành",
+      background: "rgba(15,23,42,0.09)",
+      color: "#0f172a",
+      border: "1px solid rgba(15,23,42,0.15)",
     },
     cancelled: {
-      bg: "#fef2f2",
-      color: "#b91c1c",
       label: "Đã hủy",
+      background: "rgba(239,68,68,0.1)",
+      color: "#b91c1c",
+      border: "1px solid rgba(239,68,68,0.2)",
     },
   };
 
-  const item = map[status] || {
-    bg: "#f8fafc",
-    color: "#334155",
+  const current = map[status] || {
     label: status || "Không rõ",
+    background: "rgba(148,163,184,0.16)",
+    color: "#334155",
+    border: "1px solid rgba(148,163,184,0.24)",
   };
 
   return (
@@ -521,87 +610,126 @@ function StatusBadge({ status }) {
         justifyContent: "center",
         padding: "8px 12px",
         borderRadius: 999,
-        background: item.bg,
-        color: item.color,
-        fontWeight: 800,
         fontSize: 13,
-        whiteSpace: "nowrap",
+        fontWeight: 700,
+        ...current,
       }}
     >
-      {item.label}
+      {current.label}
     </span>
   );
 }
 
+function ActionRow({ title, value, note }) {
+  return (
+    <div
+      style={{
+        background: "#f8fafc",
+        border: "1px solid rgba(15,23,42,0.06)",
+        borderRadius: 18,
+        padding: "16px 18px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ color: "#0f172a", fontWeight: 800 }}>{title}</div>
+        <div style={{ color: "#0f172a", fontWeight: 800 }}>{value}</div>
+      </div>
+
+      <div style={{ marginTop: 8, color: "#64748b", lineHeight: 1.6 }}>
+        {note}
+      </div>
+    </div>
+  );
+}
+
+function isUpcomingSoon(booking) {
+  if (!booking.pickup_date || !booking.pickup_time) return false;
+
+  const now = new Date();
+  const rideTime = new Date(`${booking.pickup_date}T${booking.pickup_time}`);
+  const diffMs = rideTime.getTime() - now.getTime();
+
+  return diffMs >= 0 && diffMs <= 2 * 60 * 60 * 1000;
+}
+
 const infoBox = {
-  padding: "16px 18px",
-  borderRadius: 16,
-  background: "#f8fafc",
-  color: "#334155",
+  background: "rgba(255,255,255,0.88)",
   border: "1px solid rgba(15,23,42,0.08)",
+  borderRadius: 18,
+  padding: "16px 18px",
+  color: "#334155",
+  boxShadow: "0 18px 40px rgba(15,23,42,0.05)",
 };
 
 const emptyBox = {
-  padding: "20px",
-  borderRadius: 18,
   background: "#f8fafc",
-  color: "#64748b",
-  border: "1px solid rgba(15,23,42,0.08)",
+  border: "1px dashed rgba(15,23,42,0.12)",
+  borderRadius: 18,
+  padding: "22px 18px",
+  color: "#475569",
 };
 
 const primaryBtn = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  border: 0,
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontWeight: 800,
-  cursor: "pointer",
-  background: "linear-gradient(135deg, #0f172a, #22314a)",
+  padding: "11px 16px",
+  borderRadius: 14,
+  background: "#0f172a",
   color: "white",
   textDecoration: "none",
-  boxShadow: "0 18px 30px rgba(15, 23, 42, 0.16)",
+  fontWeight: 700,
+  border: "none",
+  cursor: "pointer",
 };
 
 const ghostBtn = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontWeight: 800,
-  cursor: "pointer",
-  background: "transparent",
-  color: "#0f172a",
-  border: "1px solid rgba(15,23,42,0.12)",
-  textDecoration: "none",
-};
-
-const primaryLightBtn = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontWeight: 800,
-  cursor: "pointer",
+  padding: "11px 16px",
+  borderRadius: 14,
   background: "white",
   color: "#0f172a",
   textDecoration: "none",
-  border: "none",
+  fontWeight: 700,
+  border: "1px solid rgba(15,23,42,0.12)",
+  cursor: "pointer",
 };
 
 const ghostLightBtn = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontWeight: 800,
-  cursor: "pointer",
-  background: "transparent",
+  padding: "11px 16px",
+  borderRadius: 14,
+  background: "rgba(255,255,255,0.08)",
   color: "white",
-  border: "1px solid rgba(255,255,255,0.24)",
   textDecoration: "none",
+  fontWeight: 700,
+  border: "1px solid rgba(255,255,255,0.14)",
+  cursor: "pointer",
+  backdropFilter: "blur(8px)",
 };
+
+const primaryLightBtn = {
+  ...primaryBtn,
+  background: "#d4a017",
+  color: "#0f172a",
+};
+
+const responsiveStyles = `
+  @media (max-width: 960px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`;
