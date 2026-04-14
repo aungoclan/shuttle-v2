@@ -46,11 +46,24 @@ function isFutureOrToday(dateValue) {
   return !Number.isNaN(selected.getTime()) && selected >= today;
 }
 
+function generateBookingCode() {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+  const ss = String(now.getSeconds()).padStart(2, "0");
+
+  return `DDS-${yy}${mm}${dd}-${hh}${min}${ss}`;
+}
+
 export default function BookPage() {
   const { language } = useLanguage();
 
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedCode, setSubmittedCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [emailWarning, setEmailWarning] = useState("");
@@ -137,7 +150,10 @@ export default function BookPage() {
     }
 
     try {
+      const bookingCode = generateBookingCode();
+
       const payload = {
+        booking_code: bookingCode,
         full_name: form.fullName.trim(),
         phone: normalizePhone(form.phone),
         email: form.email.trim() || null,
@@ -192,6 +208,7 @@ export default function BookPage() {
         }
       }
 
+      setSubmittedCode(bookingCode);
       setSubmitted(true);
     } catch (err) {
       console.error("Unexpected submit error:", err);
@@ -204,6 +221,7 @@ export default function BookPage() {
   function resetForm() {
     setForm(initialForm);
     setSubmitted(false);
+    setSubmittedCode("");
     setSubmitError("");
     setEmailWarning("");
   }
@@ -228,6 +246,25 @@ export default function BookPage() {
         </p>
 
         {emailWarning && <div className="book-warning-box">{emailWarning}</div>}
+
+        {submittedCode && (
+          <div
+            style={{
+              marginTop: 16,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 16px",
+              borderRadius: 14,
+              background: "rgba(15,23,42,0.06)",
+              border: "1px solid rgba(15,23,42,0.08)",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {isVi ? "Mã booking:" : "Booking code:"} {submittedCode}
+          </div>
+        )}
 
         <div className="book-success-grid">
           <InfoCard label={isVi ? "Dịch vụ" : "Service"} value={form.serviceType} />

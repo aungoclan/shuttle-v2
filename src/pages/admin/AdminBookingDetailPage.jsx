@@ -232,7 +232,7 @@ export default function AdminBookingDetailPage() {
                 >
                   <div>Mã booking</div>
                   <div style={{ marginTop: 6, fontWeight: 700, color: "#0f172a" }}>
-                    {booking.id}
+                    {booking.booking_code || booking.id}
                   </div>
                 </div>
               </div>
