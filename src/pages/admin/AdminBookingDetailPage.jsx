@@ -256,12 +256,9 @@ export default function AdminBookingDetailPage() {
         luggage: booking.luggage,
         preferred_contact: booking.preferred_contact,
         notes: booking.notes,
-
-
         estimated_price_text: booking.estimated_price_text,
         final_price: booking.final_price,
         price_note: booking.price_note,
-
       };
 
       const mailResponse = await fetch(functionUrl, {
@@ -609,21 +606,6 @@ export default function AdminBookingDetailPage() {
               >
                 <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Gửi email hủy chuyến cho khách</h3>
 
-
-                <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
-                  Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
-                </p>
-
-                <div
-                  style={{
-                    marginTop: 16,
-                    background: booking.email ? "#fff7ed" : "#fef2f2",
-                    border: booking.email ? "1px solid #fed7aa" : "1px solid #fecaca",
-                    borderRadius: 16,
-                    padding: 16,
-                    color: booking.email ? "#9a3412" : "#991b1b",
-
-
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
                 </p>
@@ -686,50 +668,10 @@ export default function AdminBookingDetailPage() {
                     background: "#f8fafc",
                     border: "1px solid rgba(15,23,42,0.06)",
                     color: "#334155",
-
                     lineHeight: 1.7,
-                    fontSize: 14,
                   }}
                 >
                   <div>
-
-                    <strong>Email khách:</strong> {booking.email || "Booking này chưa có email"}
-                  </div>
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Lần gửi gần nhất:</strong> {formatDateTime(booking.cancellation_sent_at)}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleCancelAndSendEmail}
-                  disabled={sendingCancellation || sendingConfirmation || !booking.email}
-                  style={{
-                    marginTop: 14,
-                    ...dangerBtn,
-                    opacity: sendingCancellation || sendingConfirmation || !booking.email ? 0.6 : 1,
-                    cursor: sendingCancellation || sendingConfirmation || !booking.email ? "not-allowed" : "pointer",
-                    width: "100%",
-                  }}
-                >
-                  {sendingCancellation ? "Đang gửi email hủy chuyến..." : "Cancel + Send Email"}
-                </button>
-              </div>
-
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.94)",
-                  border: "1px solid rgba(15,23,42,0.08)",
-                  borderRadius: 24,
-                  padding: 24,
-                  boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
-                }}
-              >
-                <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Ghi chú nội bộ admin</h3>
-
-                <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
-                  Dùng phần này để ghi các lưu ý nội bộ như đã gọi khách, chốt giá, ghi chú đón khách hoặc tình trạng xử lý.
-                </p>
-
                     <strong>Estimated Fare:</strong> {booking.estimated_price_text || "Chưa có"}
                   </div>
                   <div style={{ marginTop: 6, fontSize: 13, color: "#64748b" }}>
@@ -786,7 +728,6 @@ export default function AdminBookingDetailPage() {
                     />
                   </div>
                 </div>
->>>>>>> feature/estimate-price
 
                 <textarea
                   value={internalNote}
@@ -809,11 +750,7 @@ export default function AdminBookingDetailPage() {
                 />
 
                 <button onClick={handleSaveInternalNote} disabled={savingNote} style={{ marginTop: 14, ...primaryBtn }}>
-
-                  {savingNote ? "Đang lưu..." : "Lưu ghi chú nội bộ"}
-
                   {savingNote ? "Đang lưu..." : "Lưu giá & ghi chú nội bộ"}
-
                 </button>
               </div>
 
