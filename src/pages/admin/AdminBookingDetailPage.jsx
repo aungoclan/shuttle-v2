@@ -622,7 +622,7 @@ export default function AdminBookingDetailPage() {
                     borderRadius: 16,
                     padding: 16,
                     color: booking.email ? "#9a3412" : "#991b1b",
-=======
+
 
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
@@ -729,7 +729,7 @@ export default function AdminBookingDetailPage() {
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Dùng phần này để ghi các lưu ý nội bộ như đã gọi khách, chốt giá, ghi chú đón khách hoặc tình trạng xử lý.
                 </p>
-=======
+
                     <strong>Estimated Fare:</strong> {booking.estimated_price_text || "Chưa có"}
                   </div>
                   <div style={{ marginTop: 6, fontSize: 13, color: "#64748b" }}>
