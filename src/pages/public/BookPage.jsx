@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageProvider";
 import { supabasePublic } from "../../lib/supabasePublic";
 import { siteConfig } from "../../lib/siteConfig";
@@ -58,6 +58,88 @@ function generateBookingCode() {
   return `DDS-${yy}${mm}${dd}-${hh}${min}${ss}`;
 }
 
+function parseCount(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  return Number(digits || 0);
+}
+
+function includesAny(value, keywords) {
+  const normalized = String(value || "").toLowerCase();
+  return keywords.some((keyword) => normalized.includes(keyword));
+}
+
+function estimatePrice({ pickup, dropoff, passengers, luggage, serviceType }) {
+  const pickupText = String(pickup || "").toLowerCase();
+  const dropoffText = String(dropoff || "").toLowerCase();
+  const serviceText = String(serviceType || "").toLowerCase();
+  const combined = `${pickupText} ${dropoffText} ${serviceText}`;
+
+  const airportKeywords = ["smf", "airport", "sacramento international"];
+  const isAirportRide = includesAny(combined, airportKeywords);
+
+  let min = 40;
+  let max = 65;
+  let zoneLabel = "local";
+
+  if (isAirportRide) {
+    zoneLabel = "airport";
+
+    if (includesAny(combined, ["elk grove"])) {
+      min = 75;
+      max = 95;
+      zoneLabel = "Elk Grove ↔ SMF";
+    } else if (includesAny(combined, ["davis", "uc davis"])) {
+      min = 80;
+      max = 100;
+      zoneLabel = "Davis ↔ SMF";
+    } else if (includesAny(combined, ["roseville", "rocklin"])) {
+      min = 85;
+      max = 110;
+      zoneLabel = "Roseville/Rocklin ↔ SMF";
+    } else if (includesAny(combined, ["folsom", "rancho cordova"])) {
+      min = 95;
+      max = 120;
+      zoneLabel = "Folsom/Rancho Cordova ↔ SMF";
+    } else if (includesAny(combined, ["woodland", "west sacramento"])) {
+      min = 70;
+      max = 90;
+      zoneLabel = "Woodland/West Sacramento ↔ SMF";
+    } else {
+      min = 65;
+      max = 85;
+      zoneLabel = "Sacramento ↔ SMF";
+    }
+  } else if (includesAny(combined, ["hourly", "theo giờ"])) {
+    min = 90;
+    max = 140;
+    zoneLabel = "hourly";
+  } else if (includesAny(combined, ["event", "sự kiện"])) {
+    min = 55;
+    max = 85;
+    zoneLabel = "event";
+  }
+
+  const passengerCount = parseCount(passengers);
+  const luggageCount = parseCount(luggage);
+
+  if (passengerCount >= 4) {
+    min += 10;
+    max += 10;
+  }
+
+  if (luggageCount >= 4) {
+    min += 10;
+    max += 10;
+  }
+
+  return {
+    min,
+    max,
+    text: `$${min} - $${max}`,
+    zoneLabel,
+  };
+}
+
 export default function BookPage() {
   const { language } = useLanguage();
 
@@ -67,8 +149,26 @@ export default function BookPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [emailWarning, setEmailWarning] = useState("");
+  const [estimate, setEstimate] = useState(null);
 
   const isVi = language === "vi";
+
+  useEffect(() => {
+    if (form.pickupLocation.trim() && form.dropoffLocation.trim()) {
+      setEstimate(
+        estimatePrice({
+          pickup: form.pickupLocation,
+          dropoff: form.dropoffLocation,
+          passengers: form.passengers,
+          luggage: form.luggage,
+          serviceType: form.serviceType,
+        })
+      );
+      return;
+    }
+
+    setEstimate(null);
+  }, [form]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -166,6 +266,9 @@ export default function BookPage() {
         luggage: form.luggage,
         preferred_contact: form.preferredContact,
         notes: form.notes.trim() || null,
+        estimated_price_min: estimate?.min ?? null,
+        estimated_price_max: estimate?.max ?? null,
+        estimated_price_text: estimate?.text ?? null,
         status: "new",
       };
 
@@ -274,6 +377,7 @@ export default function BookPage() {
             label={isVi ? "Ngày / Giờ" : "Date / Time"}
             value={`${form.pickupDate || ""} ${form.pickupTime || ""}`.trim() || "-"}
           />
+          <InfoCard label={isVi ? "Giá ước tính" : "Estimated Fare"} value={estimate?.text || "-"} />
         </div>
 
         <div className="book-success-actions">
@@ -483,6 +587,27 @@ export default function BookPage() {
               />
             </Field>
           </div>
+
+          {estimate ? (
+            <div className="book-estimate-card">
+              <div className="book-estimate-label">{isVi ? "Giá ước tính" : "Estimated Fare"}</div>
+              <div className="book-estimate-value">{estimate.text}</div>
+              <div className="book-estimate-note">
+                {isVi
+                  ? "Đây là mức giá ước tính để bạn tham khảo. Giá cuối cùng sẽ được xác nhận thủ công qua điện thoại, tin nhắn hoặc email."
+                  : "This is an estimate for reference only. The final quote will be confirmed manually by phone, text, or email."}
+              </div>
+            </div>
+          ) : (
+            <div className="book-estimate-card book-estimate-card-muted">
+              <div className="book-estimate-label">{isVi ? "Giá ước tính" : "Estimated Fare"}</div>
+              <div className="book-estimate-note">
+                {isVi
+                  ? "Nhập điểm đón và điểm đến để xem mức giá ước tính."
+                  : "Enter your pickup and dropoff locations to see an estimated fare."}
+              </div>
+            </div>
+          )}
 
           {submitError && <div className="book-error-box">{submitError}</div>}
 
@@ -727,6 +852,41 @@ const styles = `
     min-height: 130px;
     resize: vertical;
     padding-top: 14px;
+  }
+
+  .book-estimate-card {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    border: 1px solid rgba(15,23,42,0.08);
+  }
+
+  .book-estimate-card-muted {
+    background: #f8fafc;
+  }
+
+  .book-estimate-label {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .book-estimate-value {
+    margin-top: 8px;
+    font-size: clamp(24px, 4vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+  }
+
+  .book-estimate-note {
+    margin-top: 8px;
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 14px;
   }
 
   .book-form-actions,

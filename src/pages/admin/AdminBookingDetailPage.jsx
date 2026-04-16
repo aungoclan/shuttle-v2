@@ -34,6 +34,8 @@ export default function AdminBookingDetailPage() {
   const [updating, setUpdating] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [internalNote, setInternalNote] = useState("");
+  const [finalPrice, setFinalPrice] = useState("");
+  const [priceNote, setPriceNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
   const [sendingCancellation, setSendingCancellation] = useState(false);
@@ -68,6 +70,8 @@ export default function AdminBookingDetailPage() {
 
     setBooking(data);
     setInternalNote(data.internal_note || "");
+    setFinalPrice(data.final_price != null ? String(data.final_price) : "");
+    setPriceNote(data.price_note || "");
     setLoading(false);
   }
 
@@ -102,9 +106,21 @@ export default function AdminBookingDetailPage() {
     setErrorText("");
     setSuccessText("");
 
+    const normalizedFinalPrice = finalPrice === "" ? null : Number(finalPrice);
+
+    if (normalizedFinalPrice !== null && Number.isNaN(normalizedFinalPrice)) {
+      setErrorText("Giá cuối cùng chưa đúng định dạng số.");
+      setSavingNote(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("bookings")
-      .update({ internal_note: internalNote })
+      .update({
+        internal_note: internalNote,
+        final_price: normalizedFinalPrice,
+        price_note: priceNote.trim() || null,
+      })
       .eq("id", booking.id);
 
     if (error) {
@@ -114,8 +130,13 @@ export default function AdminBookingDetailPage() {
       return;
     }
 
-    setBooking((prev) => ({ ...prev, internal_note: internalNote }));
-    setSuccessText("Đã lưu ghi chú nội bộ.");
+    setBooking((prev) => ({
+      ...prev,
+      internal_note: internalNote,
+      final_price: normalizedFinalPrice,
+      price_note: priceNote.trim() || null,
+    }));
+    setSuccessText("Đã lưu ghi chú nội bộ và thông tin giá.");
     setSavingNote(false);
   }
 
@@ -152,6 +173,9 @@ export default function AdminBookingDetailPage() {
         luggage: booking.luggage,
         preferred_contact: booking.preferred_contact,
         notes: booking.notes,
+        estimated_price_text: booking.estimated_price_text,
+        final_price: booking.final_price,
+        price_note: booking.price_note,
       };
 
       const mailResponse = await fetch(functionUrl, {
@@ -232,6 +256,12 @@ export default function AdminBookingDetailPage() {
         luggage: booking.luggage,
         preferred_contact: booking.preferred_contact,
         notes: booking.notes,
+
+
+        estimated_price_text: booking.estimated_price_text,
+        final_price: booking.final_price,
+        price_note: booking.price_note,
+
       };
 
       const mailResponse = await fetch(functionUrl, {
@@ -430,6 +460,9 @@ export default function AdminBookingDetailPage() {
                 <DetailItem label="Số khách" value={booking.passengers || "-"} />
                 <DetailItem label="Hành lý" value={booking.luggage || "-"} />
                 <DetailItem label="Liên hệ ưu tiên" value={booking.preferred_contact || "-"} />
+                <DetailItem label="Giá ước tính" value={booking.estimated_price_text || "Chưa có"} />
+                <DetailItem label="Giá chốt cuối" value={formatPrice(booking.final_price)} />
+                <DetailItem label="Ghi chú giá" value={booking.price_note || "Chưa có"} />
                 <DetailItem label="Email xác nhận lần cuối" value={booking.confirmation_email || "Chưa gửi"} />
                 <DetailItem label="Đã gửi xác nhận lúc" value={formatDateTime(booking.confirmation_sent_at)} />
                 <DetailItem label="Email hủy chuyến lần cuối" value={booking.cancellation_email || "Chưa gửi"} />
@@ -575,6 +608,21 @@ export default function AdminBookingDetailPage() {
                 }}
               >
                 <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Gửi email hủy chuyến cho khách</h3>
+<<<<<<< HEAD
+
+                <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
+                  Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
+                </p>
+
+                <div
+                  style={{
+                    marginTop: 16,
+                    background: booking.email ? "#fff7ed" : "#fef2f2",
+                    border: booking.email ? "1px solid #fed7aa" : "1px solid #fecaca",
+                    borderRadius: 16,
+                    padding: 16,
+                    color: booking.email ? "#9a3412" : "#991b1b",
+=======
 
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
@@ -627,8 +675,118 @@ export default function AdminBookingDetailPage() {
                 <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Ghi chú nội bộ admin</h3>
 
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
+                  Dùng phần này để lưu giá ước tính, chốt giá cuối cùng và ghi chú nội bộ như đã gọi khách, ghi chú đón khách hoặc tình trạng xử lý.
+                </p>
+
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 16,
+                    borderRadius: 18,
+                    background: "#f8fafc",
+                    border: "1px solid rgba(15,23,42,0.06)",
+                    color: "#334155",
+>>>>>>> feature/estimate-price
+                    lineHeight: 1.7,
+                    fontSize: 14,
+                  }}
+                >
+                  <div>
+<<<<<<< HEAD
+                    <strong>Email khách:</strong> {booking.email || "Booking này chưa có email"}
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Lần gửi gần nhất:</strong> {formatDateTime(booking.cancellation_sent_at)}
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCancelAndSendEmail}
+                  disabled={sendingCancellation || sendingConfirmation || !booking.email}
+                  style={{
+                    marginTop: 14,
+                    ...dangerBtn,
+                    opacity: sendingCancellation || sendingConfirmation || !booking.email ? 0.6 : 1,
+                    cursor: sendingCancellation || sendingConfirmation || !booking.email ? "not-allowed" : "pointer",
+                    width: "100%",
+                  }}
+                >
+                  {sendingCancellation ? "Đang gửi email hủy chuyến..." : "Cancel + Send Email"}
+                </button>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.94)",
+                  border: "1px solid rgba(15,23,42,0.08)",
+                  borderRadius: 24,
+                  padding: 24,
+                  boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
+                }}
+              >
+                <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Ghi chú nội bộ admin</h3>
+
+                <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Dùng phần này để ghi các lưu ý nội bộ như đã gọi khách, chốt giá, ghi chú đón khách hoặc tình trạng xử lý.
                 </p>
+=======
+                    <strong>Estimated Fare:</strong> {booking.estimated_price_text || "Chưa có"}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 13, color: "#64748b" }}>
+                    Giá này chỉ để tham khảo. Bạn vẫn có thể chỉnh giá thật trước khi xác nhận với khách.
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#334155", marginBottom: 8 }}>
+                      Final Price
+                    </div>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={finalPrice}
+                      onChange={(e) => setFinalPrice(e.target.value)}
+                      placeholder="Ví dụ: 85"
+                      style={{
+                        width: "100%",
+                        minHeight: 52,
+                        padding: "14px 16px",
+                        borderRadius: 16,
+                        border: "1px solid rgba(15,23,42,0.12)",
+                        background: "#fff",
+                        color: "#0f172a",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#334155", marginBottom: 8 }}>
+                      Price Note
+                    </div>
+                    <textarea
+                      value={priceNote}
+                      onChange={(e) => setPriceNote(e.target.value)}
+                      placeholder="Ví dụ: Giá đã bao gồm đón sớm 4:30 AM và 3 kiện hành lý."
+                      style={{
+                        width: "100%",
+                        minHeight: 92,
+                        padding: "14px 16px",
+                        borderRadius: 16,
+                        border: "1px solid rgba(15,23,42,0.12)",
+                        background: "#fff",
+                        color: "#0f172a",
+                        outline: "none",
+                        resize: "vertical",
+                        lineHeight: 1.6,
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+                </div>
+>>>>>>> feature/estimate-price
 
                 <textarea
                   value={internalNote}
@@ -646,11 +804,16 @@ export default function AdminBookingDetailPage() {
                     outline: "none",
                     resize: "vertical",
                     lineHeight: 1.6,
+                    boxSizing: "border-box",
                   }}
                 />
 
                 <button onClick={handleSaveInternalNote} disabled={savingNote} style={{ marginTop: 14, ...primaryBtn }}>
+<<<<<<< HEAD
                   {savingNote ? "Đang lưu..." : "Lưu ghi chú nội bộ"}
+=======
+                  {savingNote ? "Đang lưu..." : "Lưu giá & ghi chú nội bộ"}
+>>>>>>> feature/estimate-price
                 </button>
               </div>
 
@@ -785,6 +948,13 @@ function formatStatusLabel(status) {
   };
 
   return map[status] || status;
+}
+
+function formatPrice(value) {
+  if (value == null || value === "") return "Chưa chốt";
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return String(value);
+  return `$${amount}`;
 }
 
 function formatDateTime(value) {
