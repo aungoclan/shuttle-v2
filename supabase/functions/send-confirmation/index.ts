@@ -42,11 +42,24 @@ function buildCustomerHtml(payload: Record<string, unknown>) {
   const dropoffLocation = escapeHtml(payload.dropoff_location || "-");
   const pickupDate = formatDate(String(payload.pickup_date || ""));
   const pickupTime = escapeHtml(payload.pickup_time || "-");
+  const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
+  const finalPriceRaw = payload.final_price;
+  const finalPrice =
+    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
+      ? `$${escapeHtml(finalPriceRaw)}`
+      : "-";
   const passengers = escapeHtml(payload.passengers || "-");
   const luggage = escapeHtml(payload.luggage || "-");
   const phone = escapeHtml(payload.phone || "-");
   const preferredContact = escapeHtml(payload.preferred_contact || "-");
   const notes = escapeHtml(payload.notes || "-");
+  const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
+  const finalPriceRaw = payload.final_price;
+  const finalPrice =
+    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
+      ? `$${escapeHtml(finalPriceRaw)}`
+      : "-";
+  const priceNote = escapeHtml(payload.price_note || "-");
 
   return `
     <div style="font-family: Arial, sans-serif; background:#f6f8fb; padding:24px; color:#111827;">
@@ -86,6 +99,9 @@ function buildCustomerHtml(payload: Record<string, unknown>) {
               <tr><td style="padding:8px 0; color:#6b7280;">Time</td><td style="padding:8px 0; color:#111827;">${pickupTime}</td></tr>
               <tr><td style="padding:8px 0; color:#6b7280;">Passengers</td><td style="padding:8px 0; color:#111827;">${passengers}</td></tr>
               <tr><td style="padding:8px 0; color:#6b7280;">Luggage</td><td style="padding:8px 0; color:#111827;">${luggage}</td></tr>
+              <tr><td style="padding:8px 0; color:#6b7280;">Estimated Fare</td><td style="padding:8px 0; color:#111827;">${estimatedPrice}</td></tr>
+              <tr><td style="padding:8px 0; color:#6b7280;">Final Price</td><td style="padding:8px 0; color:#111827;">${finalPrice}</td></tr>
+              <tr><td style="padding:8px 0; color:#6b7280; vertical-align:top;">Price Note</td><td style="padding:8px 0; color:#111827;">${priceNote}</td></tr>
               <tr><td style="padding:8px 0; color:#6b7280;">Preferred contact</td><td style="padding:8px 0; color:#111827;">${preferredContact}</td></tr>
               <tr><td style="padding:8px 0; color:#6b7280;">Contact phone</td><td style="padding:8px 0; color:#111827;">${phone}</td></tr>
               <tr><td style="padding:8px 0; color:#6b7280; vertical-align:top;">Notes</td><td style="padding:8px 0; color:#111827;">${notes}</td></tr>
@@ -113,6 +129,12 @@ function buildAdminHtml(payload: Record<string, unknown>) {
   const email = escapeHtml(payload.email || "-");
   const pickupDate = formatDate(String(payload.pickup_date || ""));
   const pickupTime = escapeHtml(payload.pickup_time || "-");
+  const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
+  const finalPriceRaw = payload.final_price;
+  const finalPrice =
+    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
+      ? `$${escapeHtml(finalPriceRaw)}`
+      : "-";
 
   return `
     <div style="font-family: Arial, sans-serif; background:#f6f8fb; padding:24px; color:#111827;">
@@ -129,6 +151,8 @@ function buildAdminHtml(payload: Record<string, unknown>) {
             <tr><td style="padding:10px 0; color:#6b7280;">Email</td><td style="padding:10px 0; color:#111827;">${email}</td></tr>
             <tr><td style="padding:10px 0; color:#6b7280;">Ride date</td><td style="padding:10px 0; color:#111827;">${pickupDate}</td></tr>
             <tr><td style="padding:10px 0; color:#6b7280;">Ride time</td><td style="padding:10px 0; color:#111827;">${pickupTime}</td></tr>
+            <tr><td style="padding:10px 0; color:#6b7280;">Estimated Fare</td><td style="padding:10px 0; color:#111827;">${estimatedPrice}</td></tr>
+            <tr><td style="padding:10px 0; color:#6b7280;">Final Price</td><td style="padding:10px 0; color:#111827;">${finalPrice}</td></tr>
           </table>
         </div>
       </div>
