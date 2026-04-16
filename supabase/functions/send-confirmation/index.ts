@@ -4,12 +4,24 @@ import { Resend } from "npm:resend";
 const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
 const resend = new Resend(resendApiKey);
 const adminEmail = Deno.env.get("ADMIN_EMAIL") ?? "";
+const fromEmail = Deno.env.get("FROM_EMAIL")?.trim() || "Sacramento Shuttle <booking@duadonsacramento.com>";
+const replyToEmail = Deno.env.get("ADMIN_EMAIL")?.trim() || "aungoclan@gmail.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
+}
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -34,6 +46,13 @@ function formatDate(value?: string | null) {
   }).format(date);
 }
 
+function formatMoney(value: unknown) {
+  if (value === null || value === undefined) return "-";
+  const raw = String(value).trim();
+  if (!raw) return "-";
+  return `$${escapeHtml(raw)}`;
+}
+
 function buildCustomerHtml(payload: Record<string, unknown>) {
   const fullName = escapeHtml(payload.full_name || "Customer");
   const bookingCode = escapeHtml(payload.booking_code || "-");
@@ -43,22 +62,12 @@ function buildCustomerHtml(payload: Record<string, unknown>) {
   const pickupDate = formatDate(String(payload.pickup_date || ""));
   const pickupTime = escapeHtml(payload.pickup_time || "-");
   const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
-  const finalPriceRaw = payload.final_price;
-  const finalPrice =
-    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
-      ? `$${escapeHtml(finalPriceRaw)}`
-      : "-";
+  const finalPrice = formatMoney(payload.final_price);
   const passengers = escapeHtml(payload.passengers || "-");
   const luggage = escapeHtml(payload.luggage || "-");
   const phone = escapeHtml(payload.phone || "-");
   const preferredContact = escapeHtml(payload.preferred_contact || "-");
   const notes = escapeHtml(payload.notes || "-");
-  const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
-  const finalPriceRaw = payload.final_price;
-  const finalPrice =
-    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
-      ? `$${escapeHtml(finalPriceRaw)}`
-      : "-";
   const priceNote = escapeHtml(payload.price_note || "-");
 
   return `
@@ -115,7 +124,7 @@ function buildCustomerHtml(payload: Record<string, unknown>) {
           <div style="margin-top:22px; padding-top:18px; border-top:1px solid #e5e7eb; font-size:14px; color:#6b7280; line-height:1.7;">
             <div><strong style="color:#111827;">Sacramento Shuttle</strong></div>
             <div>Private rides & airport transportation</div>
-            <div>Reply to: aungoclan@gmail.com</div>
+            <div>Reply to: ${escapeHtml(replyToEmail)}</div>
           </div>
         </div>
       </div>
@@ -130,11 +139,8 @@ function buildAdminHtml(payload: Record<string, unknown>) {
   const pickupDate = formatDate(String(payload.pickup_date || ""));
   const pickupTime = escapeHtml(payload.pickup_time || "-");
   const estimatedPrice = escapeHtml(payload.estimated_price_text || "-");
-  const finalPriceRaw = payload.final_price;
-  const finalPrice =
-    finalPriceRaw !== null && finalPriceRaw !== undefined && String(finalPriceRaw).trim() !== ""
-      ? `$${escapeHtml(finalPriceRaw)}`
-      : "-";
+  const finalPrice = formatMoney(payload.final_price);
+  const priceNote = escapeHtml(payload.price_note || "-");
 
   return `
     <div style="font-family: Arial, sans-serif; background:#f6f8fb; padding:24px; color:#111827;">
@@ -153,6 +159,7 @@ function buildAdminHtml(payload: Record<string, unknown>) {
             <tr><td style="padding:10px 0; color:#6b7280;">Ride time</td><td style="padding:10px 0; color:#111827;">${pickupTime}</td></tr>
             <tr><td style="padding:10px 0; color:#6b7280;">Estimated Fare</td><td style="padding:10px 0; color:#111827;">${estimatedPrice}</td></tr>
             <tr><td style="padding:10px 0; color:#6b7280;">Final Price</td><td style="padding:10px 0; color:#111827;">${finalPrice}</td></tr>
+            <tr><td style="padding:10px 0; color:#6b7280;">Price Note</td><td style="padding:10px 0; color:#111827;">${priceNote}</td></tr>
           </table>
         </div>
       </div>
@@ -166,13 +173,7 @@ serve(async (req) => {
   }
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), {
-      status: 405,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
+    return jsonResponse({ success: false, error: "Method not allowed" }, 405);
   }
 
   try {
@@ -184,13 +185,7 @@ serve(async (req) => {
     const email = String(payload?.email ?? "").trim();
 
     if (!email) {
-      return new Response(JSON.stringify({ success: false, error: "Missing customer email" }), {
-        status: 400,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      });
+      return jsonResponse({ success: false, error: "Missing customer email" }, 400);
     }
 
     const subjectCode = String(payload?.booking_code ?? "").trim();
@@ -199,45 +194,42 @@ serve(async (req) => {
       : "Your ride has been confirmed - Sacramento Shuttle";
 
     const customerResult = await resend.emails.send({
-      from: "Sacramento Shuttle <booking@duadonsacramento.com>",
-      replyTo: "aungoclan@gmail.com",
+      from: fromEmail,
+      replyTo: replyToEmail,
       to: email,
       subject,
       html: buildCustomerHtml(payload),
     });
 
+    if ((customerResult as { error?: unknown })?.error) {
+      console.error("Resend customer send error =", (customerResult as { error?: unknown }).error);
+      throw new Error("Failed to send customer confirmation email");
+    }
+
     if (adminEmail) {
-      await resend.emails.send({
-        from: "Sacramento Shuttle <booking@duadonsacramento.com>",
-        replyTo: "aungoclan@gmail.com",
+      const adminResult = await resend.emails.send({
+        from: fromEmail,
+        replyTo: replyToEmail,
         to: adminEmail,
         subject: `Confirmation Sent - ${String(payload?.booking_code ?? payload?.full_name ?? "Booking")}`,
         html: buildAdminHtml(payload),
       });
+
+      if ((adminResult as { error?: unknown })?.error) {
+        console.error("Resend admin send error =", (adminResult as { error?: unknown }).error);
+      }
     }
 
-    return new Response(JSON.stringify({ success: true, id: customerResult.data?.id ?? null }), {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
+    const resultId = (customerResult as { data?: { id?: string } })?.data?.id ?? null;
+    return jsonResponse({ success: true, id: resultId }, 200);
   } catch (error) {
     console.error("send-confirmation error =", error);
-
-    return new Response(
-      JSON.stringify({
+    return jsonResponse(
+      {
         success: false,
         error: error instanceof Error ? error.message : String(error),
-      }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
       },
+      500,
     );
   }
 });
