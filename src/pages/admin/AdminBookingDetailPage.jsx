@@ -608,7 +608,7 @@ export default function AdminBookingDetailPage() {
                 }}
               >
                 <h3 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.03em" }}>Gửi email hủy chuyến cho khách</h3>
-<<<<<<< HEAD
+
 
                 <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.7 }}>
                   Nút này sẽ gửi email báo hủy chuyến cho khách. Sau khi gửi thành công, booking sẽ tự chuyển sang trạng thái <strong>Đã hủy</strong>.
@@ -686,13 +686,13 @@ export default function AdminBookingDetailPage() {
                     background: "#f8fafc",
                     border: "1px solid rgba(15,23,42,0.06)",
                     color: "#334155",
->>>>>>> feature/estimate-price
+
                     lineHeight: 1.7,
                     fontSize: 14,
                   }}
                 >
                   <div>
-<<<<<<< HEAD
+
                     <strong>Email khách:</strong> {booking.email || "Booking này chưa có email"}
                   </div>
                   <div style={{ marginTop: 8 }}>
@@ -809,11 +809,11 @@ export default function AdminBookingDetailPage() {
                 />
 
                 <button onClick={handleSaveInternalNote} disabled={savingNote} style={{ marginTop: 14, ...primaryBtn }}>
-<<<<<<< HEAD
+
                   {savingNote ? "Đang lưu..." : "Lưu ghi chú nội bộ"}
-=======
+
                   {savingNote ? "Đang lưu..." : "Lưu giá & ghi chú nội bộ"}
->>>>>>> feature/estimate-price
+
                 </button>
               </div>
 
