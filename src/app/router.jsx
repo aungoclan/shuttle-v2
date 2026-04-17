@@ -1,30 +1,40 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import AdminLayout from "../layouts/AdminLayout";
-
-import HomePage from "../pages/public/HomePage";
-import BookPage from "../pages/public/BookPage";
-import ContactPage from "../pages/public/ContactPage";
-import ServicesPage from "../pages/public/ServicesPage";
-import AboutPage from "../pages/public/AboutPage";
-
-import AdminLogin from "../pages/admin/AdminLogin";
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import AdminBookingsPage from "../pages/admin/AdminBookingsPage";
-import AdminBookingDetailPage from "../pages/admin/AdminBookingDetailPage";
-
 import AdminProtectedRoute from "../auth/AdminProtectedRoute";
+
+const HomePage = lazy(() => import("../pages/public/HomePage"));
+const BookPage = lazy(() => import("../pages/public/BookPage"));
+const ContactPage = lazy(() => import("../pages/public/ContactPage"));
+const ServicesPage = lazy(() => import("../pages/public/ServicesPage"));
+const AboutPage = lazy(() => import("../pages/public/AboutPage"));
+
+const AdminLogin = lazy(() => import("../pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
+const AdminBookingsPage = lazy(() => import("../pages/admin/AdminBookingsPage"));
+const AdminBookingDetailPage = lazy(() =>
+  import("../pages/admin/AdminBookingDetailPage")
+);
+
+function withSuspense(element) {
+  return (
+    <Suspense fallback={<div style={{ padding: "24px" }}>Loading...</div>}>
+      {element}
+    </Suspense>
+  );
+}
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <PublicLayout />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "book", element: <BookPage /> },
-      { path: "contact", element: <ContactPage /> },
-      { path: "services", element: <ServicesPage /> },
-      { path: "about", element: <AboutPage /> },
+      { index: true, element: withSuspense(<HomePage />) },
+      { path: "book", element: withSuspense(<BookPage />) },
+      { path: "contact", element: withSuspense(<ContactPage />) },
+      { path: "services", element: withSuspense(<ServicesPage />) },
+      { path: "about", element: withSuspense(<AboutPage />) },
     ],
   },
   {
@@ -35,13 +45,16 @@ export const router = createBrowserRouter([
       </AdminProtectedRoute>
     ),
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: "bookings", element: <AdminBookingsPage /> },
-      { path: "bookings/:id", element: <AdminBookingDetailPage /> },
+      { index: true, element: withSuspense(<AdminDashboard />) },
+      { path: "bookings", element: withSuspense(<AdminBookingsPage />) },
+      {
+        path: "bookings/:id",
+        element: withSuspense(<AdminBookingDetailPage />),
+      },
     ],
   },
   {
     path: "/admin/login",
-    element: <AdminLogin />,
+    element: withSuspense(<AdminLogin />),
   },
 ]);
