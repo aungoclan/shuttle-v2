@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageProvider";
 import { supabasePublic } from "../../lib/supabasePublic";
 import { siteConfig } from "../../lib/siteConfig";
+import { estimatePrice } from "../../lib/pricing";
 
 const initialForm = {
   fullName: "",
@@ -68,77 +69,6 @@ function includesAny(value, keywords) {
   return keywords.some((keyword) => normalized.includes(keyword));
 }
 
-function estimatePrice({ pickup, dropoff, passengers, luggage, serviceType }) {
-  const pickupText = String(pickup || "").toLowerCase();
-  const dropoffText = String(dropoff || "").toLowerCase();
-  const serviceText = String(serviceType || "").toLowerCase();
-  const combined = `${pickupText} ${dropoffText} ${serviceText}`;
-
-  const airportKeywords = ["smf", "airport", "sacramento international"];
-  const isAirportRide = includesAny(combined, airportKeywords);
-
-  let min = 40;
-  let max = 65;
-  let zoneLabel = "local";
-
-  if (isAirportRide) {
-    zoneLabel = "airport";
-
-    if (includesAny(combined, ["elk grove"])) {
-      min = 75;
-      max = 95;
-      zoneLabel = "Elk Grove ↔ SMF";
-    } else if (includesAny(combined, ["davis", "uc davis"])) {
-      min = 80;
-      max = 100;
-      zoneLabel = "Davis ↔ SMF";
-    } else if (includesAny(combined, ["roseville", "rocklin"])) {
-      min = 85;
-      max = 110;
-      zoneLabel = "Roseville/Rocklin ↔ SMF";
-    } else if (includesAny(combined, ["folsom", "rancho cordova"])) {
-      min = 95;
-      max = 120;
-      zoneLabel = "Folsom/Rancho Cordova ↔ SMF";
-    } else if (includesAny(combined, ["woodland", "west sacramento"])) {
-      min = 70;
-      max = 90;
-      zoneLabel = "Woodland/West Sacramento ↔ SMF";
-    } else {
-      min = 65;
-      max = 85;
-      zoneLabel = "Sacramento ↔ SMF";
-    }
-  } else if (includesAny(combined, ["hourly", "theo giờ"])) {
-    min = 90;
-    max = 140;
-    zoneLabel = "hourly";
-  } else if (includesAny(combined, ["event", "sự kiện"])) {
-    min = 55;
-    max = 85;
-    zoneLabel = "event";
-  }
-
-  const passengerCount = parseCount(passengers);
-  const luggageCount = parseCount(luggage);
-
-  if (passengerCount >= 4) {
-    min += 10;
-    max += 10;
-  }
-
-  if (luggageCount >= 4) {
-    min += 10;
-    max += 10;
-  }
-
-  return {
-    min,
-    max,
-    text: `$${min} - $${max}`,
-    zoneLabel,
-  };
-}
 
 export default function BookPage() {
   const { language } = useLanguage();
