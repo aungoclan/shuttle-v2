@@ -7,118 +7,118 @@ export default function AboutPage() {
   const content =
     language === "vi"
       ? {
-          badge: "Giới thiệu dịch vụ",
+          badge: "Về dịch vụ",
           title:
-            "Một dịch vụ đưa đón được xây dựng theo hướng rõ ràng, đáng tin và dễ làm việc.",
+            "Dịch vụ đưa đón được xây dựng theo hướng rõ ràng, đúng giờ và dễ phối hợp cho từng chuyến đi.",
           desc:
-            "Trang giới thiệu này giúp khách hàng hiểu bạn đang hướng đến trải nghiệm như thế nào: dễ liên hệ, dễ đặt xe, lịch sự trong cách phục vụ và rõ ràng trong quá trình sắp xếp chuyến đi.",
+            "Mục tiêu là mang lại trải nghiệm đặt xe đơn giản hơn, liên hệ thuận tiện hơn và hành trình yên tâm hơn cho khách cần đi sân bay, đi lại trong khu vực hoặc đặt xe riêng theo nhu cầu.",
 
-          storyTitle: "Cách chúng tôi xây dựng dịch vụ",
+          storyTitle: "Cách dịch vụ được xây dựng",
           storyDesc:
-            "Mục tiêu không chỉ là cung cấp một chuyến xe, mà là tạo ra trải nghiệm đặt xe gọn gàng, dễ hiểu và đáng tin hơn cho khách hàng cần đi sân bay, đi địa phương hoặc đi việc riêng.",
+            "Không chỉ là một chuyến xe, mà là một quy trình rõ ràng hơn từ lúc khách tìm hiểu, liên hệ, đặt xe đến khi xác nhận chuyến đi.",
           storyParagraphs: [
-            "Dịch vụ được định hướng theo phong cách chuyên nghiệp nhưng gần gũi: khách dễ hỏi thông tin, dễ đặt xe và dễ xác nhận lại chuyến đi khi cần.",
-            "Chúng tôi tập trung vào những điều khách hàng quan tâm nhiều nhất như sự rõ ràng khi liên hệ, tính thuận tiện khi đặt xe, và cảm giác yên tâm trong suốt quá trình sắp xếp chuyến đi.",
-            "Website này cũng được xây dựng để phản ánh đúng tinh thần đó: giao diện sạch hơn, nội dung rõ hơn và các bước đặt xe dễ hiểu hơn.",
+            "Dịch vụ này được định hướng cho những khách cần một cách đặt xe gọn gàng, dễ hiểu và bớt rườm rà hơn. Từ chuyến đi sân bay đến nhu cầu đi lại cá nhân, mọi thứ đều ưu tiên sự thuận tiện và rõ ràng.",
+            "Điểm quan trọng nhất là khả năng phối hợp trước chuyến đi. Khách cần biết mình đặt như thế nào, khi nào sẽ được xác nhận, và thông tin chuyến đi có được trình bày rõ hay không.",
+            "Vì vậy, toàn bộ trải nghiệm được xây dựng theo hướng dễ dùng, dễ liên hệ và dễ sắp xếp hơn, để khách cảm thấy yên tâm ngay từ trước khi chuyến đi bắt đầu.",
           ],
 
-          valuesTitle: "Giá trị dịch vụ",
+          valuesTitle: "Giá trị cốt lõi",
           valuesDesc:
-            "Những điểm cốt lõi giúp dịch vụ tạo được cảm giác chuyên nghiệp và dễ tin tưởng hơn.",
+            "Những điều quan trọng giúp dịch vụ tạo cảm giác chuyên nghiệp, dễ tin tưởng và phù hợp cho nhu cầu đi lại thực tế.",
           values: [
             {
               title: "Rõ ràng",
               desc:
-                "Thông tin dịch vụ, cách liên hệ và quy trình đặt xe được trình bày đơn giản, dễ hiểu.",
+                "Thông tin dịch vụ, cách liên hệ và quy trình đặt xe được trình bày đơn giản, trực tiếp và dễ hiểu.",
             },
             {
-              title: "Đúng hẹn",
+              title: "Đáng tin cậy",
               desc:
-                "Việc xác nhận thời gian và chuyến đi được ưu tiên để khách cảm thấy yên tâm hơn.",
+                "Ưu tiên việc xác nhận và phối hợp thời gian để khách cảm thấy yên tâm hơn trước mỗi chuyến đi.",
             },
             {
               title: "Lịch sự",
               desc:
-                "Cách trao đổi và phục vụ hướng đến cảm giác chuyên nghiệp, nhẹ nhàng và tôn trọng khách hàng.",
+                "Cách trao đổi hướng đến sự tôn trọng, nhẹ nhàng và chuyên nghiệp trong toàn bộ quá trình làm việc.",
             },
             {
               title: "Thuận tiện",
               desc:
-                "Khách có thể chọn gọi điện, dùng form đặt xe hoặc email tùy nhu cầu.",
+                "Khách có thể chọn hình thức liên hệ phù hợp như gọi điện, gửi yêu cầu đặt xe hoặc trao đổi trước khi xác nhận.",
             },
           ],
 
           commitmentTitle: "Cam kết về trải nghiệm",
           commitmentDesc:
-            "Một dịch vụ nhỏ vẫn có thể mang lại trải nghiệm chỉn chu nếu làm tốt những chi tiết quan trọng.",
+            "Một dịch vụ tốt không chỉ nằm ở việc có chuyến xe, mà còn ở cách mọi chi tiết được chuẩn bị và phối hợp trước đó.",
           commitments: [
-            "Giao diện và nội dung dễ hiểu hơn cho khách lần đầu vào web",
-            "Dễ chuyển từ tìm hiểu dịch vụ sang đặt xe hoặc liên hệ",
-            "Cách trình bày phù hợp cho cả khách đi cá nhân, gia đình và công việc",
-            "Hướng đến cảm giác sạch sẽ, rõ ràng và chuyên nghiệp hơn",
+            "Hỗ trợ đặt xe đơn giản và dễ hiểu hơn",
+            "Tạo cảm giác rõ ràng hơn trước khi khách xác nhận chuyến đi",
+            "Phù hợp cho khách cá nhân, gia đình hoặc nhu cầu đi lại công việc",
+            "Ưu tiên sự đúng giờ, liên hệ thuận tiện và hành trình gọn gàng hơn",
           ],
 
-          ctaTitle: "Muốn chuyển sang bước tiếp theo?",
+          ctaTitle: "Sẵn sàng cho chuyến đi tiếp theo của bạn?",
           ctaDesc:
-            "Bạn có thể vào trang Đặt xe để gửi yêu cầu ngay hoặc vào trang Liên hệ nếu muốn trao đổi thêm trước.",
+            "Bạn có thể chuyển sang trang Đặt xe để gửi yêu cầu ngay, hoặc vào trang Liên hệ nếu muốn trao đổi thêm trước.",
           ctaPrimary: "Đặt xe ngay",
           ctaSecondary: "Liên hệ",
         }
       : {
           badge: "About the service",
           title:
-            "A transportation service built around clarity, reliability, and a smoother customer experience.",
+            "A ride service built around clarity, punctuality, and easier coordination for each trip.",
           desc:
-            "This about page helps customers understand the kind of experience the service is designed to provide: easy communication, easy booking, respectful service, and a clearer ride coordination process.",
+            "The goal is to create a simpler booking experience, more convenient communication, and a smoother overall ride experience for airport transportation, local travel, and private ride requests.",
 
           storyTitle: "How the service is built",
           storyDesc:
-            "The goal is not only to provide a ride, but to create a booking experience that feels more organized, easier to understand, and more dependable for airport trips, local rides, and personal travel.",
+            "It is not only about providing a ride. It is also about making the full process clearer from the moment a customer explores the service to the moment the trip is confirmed.",
           storyParagraphs: [
-            "The service is designed to feel professional yet approachable, making it easier for customers to ask questions, request a ride, and confirm trip details when needed.",
-            "The focus is on the details customers usually care about most: clear communication, booking convenience, and a stronger sense of trust throughout the trip planning process.",
-            "The website is built to reflect that same idea through a cleaner interface, better content structure, and a simpler booking flow.",
+            "This service is designed for customers who want a booking process that feels cleaner, easier to understand, and less complicated. Whether the trip is for the airport, local transportation, or personal travel, the focus stays on convenience and clarity.",
+            "One of the most important parts is coordination before the ride. Customers want to know how the request works, when confirmation will happen, and whether the trip details are clearly communicated.",
+            "That is why the overall experience is built to feel easier to use, easier to contact, and easier to arrange, so customers can feel more confident before the trip even begins.",
           ],
 
-          valuesTitle: "Service values",
+          valuesTitle: "Core values",
           valuesDesc:
-            "These are the core ideas that help the service feel more polished and trustworthy.",
+            "These are the principles that help the service feel more polished, more trustworthy, and more useful for real transportation needs.",
           values: [
             {
               title: "Clarity",
               desc:
-                "Service details, contact methods, and booking steps are presented in a simple and understandable way.",
+                "Service details, contact options, and booking steps are presented in a direct and easy-to-understand way.",
             },
             {
               title: "Reliability",
               desc:
-                "Trip timing and confirmation are treated as priorities so customers feel more confident.",
+                "Timing and trip coordination are treated as priorities so customers can feel more confident before each ride.",
             },
             {
               title: "Courtesy",
               desc:
-                "Communication and service style aim to feel respectful, professional, and easy to work with.",
+                "Communication is meant to feel respectful, calm, and professional throughout the process.",
             },
             {
               title: "Convenience",
               desc:
-                "Customers can choose between calling, booking online, or using email depending on what works best.",
+                "Customers can choose the contact method that fits them best, whether that means calling first or sending a booking request online.",
             },
           ],
 
           commitmentTitle: "Commitment to the experience",
           commitmentDesc:
-            "Even a smaller service can feel polished when the most important details are handled well.",
+            "A quality ride service is not only about having transportation available. It is also about how well the details are handled before the trip.",
           commitments: [
-            "A clearer website experience for first-time visitors",
-            "An easier path from learning about the service to requesting a ride",
-            "A presentation that works for personal, family, and business transportation needs",
-            "A more organized, cleaner, and more professional overall feel",
+            "A booking process that feels simpler and easier to follow",
+            "Clearer communication before the customer confirms a trip",
+            "Useful for individual, family, and business transportation needs",
+            "A stronger focus on punctuality, convenience, and a smoother ride experience",
           ],
 
-          ctaTitle: "Ready for the next step?",
+          ctaTitle: "Ready for your next ride?",
           ctaDesc:
-            "You can move to the booking page to send your request now, or go to the contact page if you want to discuss your ride first.",
+            "You can go to the booking page to send your request now, or visit the contact page if you would like to discuss the trip first.",
           ctaPrimary: "Book Now",
           ctaSecondary: "Contact",
         };
@@ -216,7 +216,7 @@ export default function AboutPage() {
                 fontWeight: 800,
               }}
             >
-              {language === "vi" ? "Điểm nhấn chính" : "Key points"}
+              {language === "vi" ? "Điểm nổi bật" : "Highlights"}
             </div>
 
             <ul
@@ -233,26 +233,26 @@ export default function AboutPage() {
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Tập trung vào trải nghiệm rõ ràng và dễ làm việc"
-                  : "Focused on a clearer and easier customer experience"}
+                  ? "Quy trình đặt xe rõ ràng hơn"
+                  : "A clearer booking process"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Tạo cảm giác chuyên nghiệp hơn cho website"
-                  : "Creates a more professional feel for the website"}
+                  ? "Dễ liên hệ và dễ phối hợp trước chuyến đi"
+                  : "Easier communication and trip coordination"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Giúp khách hiểu dịch vụ nhanh hơn"
-                  : "Helps customers understand the service faster"}
+                  ? "Phù hợp cho sân bay, đi địa phương và xe riêng"
+                  : "Suitable for airport, local, and private rides"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Tăng độ tin cậy trước khi khách đặt xe"
-                  : "Builds trust before customers book"}
+                  ? "Ưu tiên trải nghiệm gọn gàng và đáng tin cậy"
+                  : "Focused on a smoother and more dependable experience"}
               </li>
             </ul>
           </div>
