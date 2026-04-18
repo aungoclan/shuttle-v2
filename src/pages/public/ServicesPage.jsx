@@ -7,174 +7,206 @@ export default function ServicesPage() {
   const content =
     language === "vi"
       ? {
-          badge: "Dịch vụ vận chuyển chuyên nghiệp",
-          title: "Các dịch vụ được thiết kế rõ ràng, linh hoạt và phù hợp cho nhu cầu đi lại thực tế.",
+          badge: "Dịch vụ đưa đón tại Sacramento",
+          title: "Các lựa chọn di chuyển rõ ràng, riêng tư và thuận tiện cho nhu cầu hằng ngày.",
           desc:
-            "Trang này giúp khách hàng hiểu nhanh bạn cung cấp những loại dịch vụ nào, phù hợp với chuyến đi nào, và nên đặt xe theo cách nào để thuận tiện nhất.",
+            "Từ đưa đón sân bay đến các chuyến đi trong thành phố hoặc hành trình xa hơn, dịch vụ được sắp xếp để khách dễ chọn, dễ đặt và dễ phối hợp trước chuyến đi.",
 
-          sectionTitle: "Dịch vụ chính",
+          sectionTitle: "Các dịch vụ chính",
           sectionDesc:
-            "Tập trung vào những nhóm dịch vụ thiết thực nhất cho khách hàng cá nhân, gia đình và nhu cầu đi lại hằng ngày.",
+            "Những lựa chọn phổ biến và thiết thực cho cá nhân, gia đình, khách đi sân bay và các nhu cầu đi lại riêng.",
 
           cards: [
             {
               title: "Đưa đón sân bay",
               desc:
-                "Dịch vụ đón và trả sân bay với thời gian rõ ràng, liên hệ dễ dàng và trải nghiệm chuyên nghiệp hơn cho khách cần đi sớm, đi xa hoặc cần đúng giờ.",
+                "Phù hợp cho các chuyến đi đến hoặc từ sân bay với thời gian đón rõ ràng, liên hệ thuận tiện và trải nghiệm gọn gàng hơn cho khách cần đúng giờ.",
               bullets: [
                 "Phù hợp cho chuyến bay sáng sớm hoặc tối muộn",
                 "Dễ xác nhận giờ đón và điểm đón",
-                "Thích hợp cho cá nhân, cặp đôi và gia đình",
+                "Thuận tiện cho cá nhân, cặp đôi và gia đình",
               ],
             },
             {
-              title: "Đi lại địa phương",
+              title: "Đi lại trong thành phố",
               desc:
-                "Dịch vụ đưa đón linh hoạt trong khu vực Sacramento cho các nhu cầu đi chợ, đi làm, đi khám, gặp người thân hoặc những chuyến đi cá nhân hằng ngày.",
+                "Dịch vụ di chuyển linh hoạt trong khu vực Sacramento cho lịch hẹn, công việc cá nhân, thăm người thân, đi mua sắm hoặc các nhu cầu đi lại hằng ngày.",
               bullets: [
-                "Đi lại linh hoạt trong thành phố",
-                "Phù hợp cho lịch hẹn, việc riêng và sinh hoạt",
-                "Quy trình đặt xe đơn giản, dễ dùng",
+                "Thuận tiện cho các chuyến đi trong khu vực",
+                "Phù hợp cho việc riêng và lịch hẹn",
+                "Đặt xe đơn giản, dễ phối hợp",
               ],
             },
             {
-              title: "Thuê xe theo giờ",
+              title: "Chuyến đi riêng",
               desc:
-                "Lựa chọn phù hợp khi khách cần nhiều điểm dừng, cần chủ động thời gian hoặc muốn có chuyến đi riêng cho công việc, sự kiện hoặc nhu cầu cá nhân.",
+                "Lựa chọn phù hợp khi bạn muốn không gian riêng tư hơn, cần chủ động thời gian hoặc muốn sắp xếp hành trình thoải mái theo nhu cầu thực tế.",
               bullets: [
-                "Thuận tiện cho nhiều điểm dừng",
+                "Riêng tư và thoải mái hơn",
                 "Phù hợp cho lịch trình linh hoạt",
-                "Dễ dùng cho công việc hoặc việc riêng",
+                "Dễ sắp xếp cho nhu cầu cá nhân hoặc công việc",
               ],
             },
             {
-              title: "Xe cho dịp đặc biệt",
+              title: "Chuyến đi đường dài",
               desc:
-                "Dịch vụ cho các dịp quan trọng như họp mặt, tiệc nhỏ, đưa đón khách thân, hoặc các chuyến đi cần sự chỉnh chu và đáng tin cậy hơn.",
+                "Giải pháp phù hợp cho các hành trình giữa thành phố này với thành phố khác, hoặc những chuyến đi xa cần sự ổn định và dễ phối hợp hơn.",
               bullets: [
-                "Phù hợp cho nhu cầu riêng và sự kiện nhỏ",
-                "Tạo cảm giác gọn gàng và chuyên nghiệp",
-                "Dễ phối hợp trước giờ đi",
+                "Phù hợp cho hành trình xa hơn",
+                "Di chuyển trực tiếp, riêng tư hơn",
+                "Thuận tiện cho kế hoạch đi lại dài hơn trong ngày",
               ],
             },
           ],
 
-          whyTitle: "Điểm nổi bật của dịch vụ",
+          whyTitle: "Vì sao dịch vụ này phù hợp",
           whyDesc:
-            "Điều khách hàng thường quan tâm nhất không chỉ là có xe, mà là trải nghiệm đặt xe có rõ ràng, dễ liên lạc và đáng tin hay không.",
+            "Điều khách thường quan tâm không chỉ là có xe, mà là quy trình có dễ hiểu, liên hệ có rõ ràng và chuyến đi có đủ yên tâm hay không.",
 
           features: [
             {
               title: "Đặt xe dễ hiểu",
               desc:
-                "Biểu mẫu và nội dung được trình bày rõ ràng để khách dễ gửi yêu cầu mà không bị rối.",
+                "Thông tin được trình bày rõ ràng để khách dễ chọn dịch vụ phù hợp và gửi yêu cầu nhanh hơn.",
             },
             {
-              title: "Liên hệ nhanh",
+              title: "Liên hệ thuận tiện",
               desc:
-                "Khách có thể chọn gọi điện, gửi form hoặc email tùy nhu cầu và thời điểm.",
+                "Khách có thể gọi trực tiếp hoặc gửi yêu cầu online tùy theo cách nào tiện nhất.",
             },
             {
               title: "Phù hợp nhiều loại chuyến đi",
               desc:
-                "Từ đi sân bay, đi việc riêng, đi trong thành phố đến các chuyến cần nhiều điểm dừng.",
+                "Từ sân bay, đi lại địa phương đến các chuyến riêng hoặc hành trình xa hơn.",
             },
             {
-              title: "Hướng đến trải nghiệm chuyên nghiệp",
+              title: "Trải nghiệm gọn gàng hơn",
               desc:
-                "Thiết kế và nội dung đều hướng đến cảm giác tin cậy, sạch sẽ và dễ làm việc.",
+                "Ưu tiên sự rõ ràng, đúng giờ và phối hợp dễ dàng trước mỗi chuyến đi.",
+            },
+          ],
+
+          faqTitle: "Câu hỏi thường gặp",
+          faqs: [
+            {
+              q: "Tôi có thể đặt chuyến sáng sớm hoặc tối muộn không?",
+              a: "Có. Bạn chỉ cần gửi thông tin chuyến đi trước để việc sắp xếp được rõ ràng hơn.",
+            },
+            {
+              q: "Tôi có thể đặt xe cho chuyến khứ hồi không?",
+              a: "Có. Bạn có thể ghi rõ nhu cầu trong lúc đặt xe để sắp xếp phù hợp hơn.",
+            },
+            {
+              q: "Nếu tôi chưa chắc giờ đi thì sao?",
+              a: "Bạn vẫn có thể liên hệ trước để trao đổi. Sau đó có thể cập nhật lại chi tiết khi kế hoạch rõ hơn.",
             },
           ],
 
           ctaTitle: "Sẵn sàng đặt chuyến đi phù hợp với nhu cầu của bạn?",
           ctaDesc:
-            "Bạn có thể đặt xe trực tiếp ngay bây giờ hoặc chuyển sang trang liên hệ nếu cần trao đổi thêm trước khi chốt chuyến.",
+            "Bạn có thể đặt xe ngay bây giờ hoặc chuyển sang trang liên hệ nếu muốn trao đổi thêm trước khi xác nhận.",
           ctaPrimary: "Đặt xe ngay",
           ctaSecondary: "Liên hệ trước",
         }
       : {
-          badge: "Professional transportation services",
-          title: "Clear, flexible service options designed for real transportation needs.",
+          badge: "Transportation services in Sacramento",
+          title: "Clear, private, and convenient ride options for everyday travel needs.",
           desc:
-            "This page helps customers quickly understand what services are available, which option best fits their trip, and how to request a ride more easily.",
+            "From airport transportation to local rides and longer private trips, the service is organized to make booking easier, communication clearer, and planning more convenient.",
 
           sectionTitle: "Core services",
           sectionDesc:
-            "Focused on practical transportation options for individuals, families, and everyday travel needs.",
+            "Practical ride options for individuals, families, airport travelers, and customers who want a more private transportation experience.",
 
           cards: [
             {
-              title: "Airport Transfer",
+              title: "Airport Transfers",
               desc:
-                "Reliable airport pickup and drop-off service with clearer timing, easier communication, and a more polished booking experience.",
+                "A dependable option for rides to and from the airport with clear pickup timing, easier coordination, and a smoother overall travel experience.",
               bullets: [
                 "Good for early morning or late-night flights",
-                "Clear pickup coordination",
-                "Suitable for individuals, couples, and families",
+                "Clear pickup time and location coordination",
+                "Convenient for individuals, couples, and families",
               ],
             },
             {
               title: "Local Rides",
               desc:
-                "Flexible local transportation around Sacramento for appointments, shopping, errands, family visits, and daily personal travel.",
+                "Flexible transportation around Sacramento for appointments, errands, family visits, shopping, and other day-to-day travel needs.",
               bullets: [
-                "Flexible city transportation",
+                "Convenient for local transportation needs",
                 "Useful for appointments and personal errands",
-                "Simple and easy request process",
+                "Simple booking and easy coordination",
               ],
             },
             {
-              title: "Hourly Service",
+              title: "Private Rides",
               desc:
-                "A strong option for customers who need multiple stops, more control over timing, or a more private ride arrangement for work or personal use.",
+                "A strong choice when you want a more private setting, a more flexible schedule, or a ride tailored more closely to your trip needs.",
               bullets: [
-                "Convenient for multiple stops",
+                "More private and comfortable",
                 "Works well for flexible schedules",
-                "Useful for business or personal trips",
+                "Suitable for personal or business travel",
               ],
             },
             {
-              title: "Special Occasion Rides",
+              title: "Long Distance Trips",
               desc:
-                "A more polished transportation option for small events, family pickups, personal occasions, or trips that need a more organized experience.",
+                "A practical transportation option for travel between cities or for longer rides that need a more stable and direct arrangement.",
               bullets: [
-                "Great for personal needs and small events",
-                "Feels more polished and professional",
-                "Easier to coordinate ahead of time",
+                "Suitable for longer travel distances",
+                "More direct and private transportation",
+                "Helpful for extended day travel plans",
               ],
             },
           ],
 
-          whyTitle: "What makes the service stronger",
+          whyTitle: "Why this service works well",
           whyDesc:
-            "Customers usually care about more than just having a ride available. They also care about clarity, responsiveness, and an overall sense of trust.",
+            "Customers usually care about more than just finding a ride. They also want a process that feels clear, responsive, and dependable.",
 
           features: [
             {
-              title: "Easy booking flow",
+              title: "Easy to understand",
               desc:
-                "The form and page structure are designed to be clear and simple instead of confusing.",
+                "Service details are presented clearly so it is easier to choose the right option and send a request quickly.",
             },
             {
-              title: "Fast contact options",
+              title: "Convenient communication",
               desc:
-                "Customers can choose to call, submit a request, or send an email depending on what works best.",
+                "Customers can call directly or submit an online request depending on what works best.",
             },
             {
-              title: "Works for multiple trip types",
+              title: "Useful for different trip types",
               desc:
-                "From airport rides and local travel to multi-stop trips and personal transportation needs.",
+                "From airport rides and local travel to private trips and longer-distance transportation.",
             },
             {
-              title: "Built for a professional feel",
+              title: "A smoother overall experience",
               desc:
-                "The design and wording aim to feel trustworthy, organized, and easier to work with.",
+                "The focus is on clarity, punctuality, and easier coordination before the ride.",
+            },
+          ],
+
+          faqTitle: "Frequently Asked Questions",
+          faqs: [
+            {
+              q: "Can I request an early morning or late-night ride?",
+              a: "Yes. You can send your trip details in advance so scheduling is easier to coordinate.",
+            },
+            {
+              q: "Can I book a round trip?",
+              a: "Yes. You can include those details when submitting your request so the trip can be arranged more clearly.",
+            },
+            {
+              q: "What if my travel time is not fully confirmed yet?",
+              a: "You can still reach out first and update the trip details later once your schedule is finalized.",
             },
           ],
 
           ctaTitle: "Ready to request the right ride for your trip?",
           ctaDesc:
-            "You can book now directly or move to the contact page if you want to discuss your ride before confirming.",
+            "You can book now directly or go to the contact page if you want to discuss your trip before confirming.",
           ctaPrimary: "Book Now",
           ctaSecondary: "Contact First",
         };
@@ -272,7 +304,7 @@ export default function ServicesPage() {
                 fontWeight: 800,
               }}
             >
-              {language === "vi" ? "Tóm tắt nhanh" : "Quick summary"}
+              {language === "vi" ? "Tóm tắt nhanh" : "Quick Summary"}
             </div>
 
             <ul
@@ -289,26 +321,26 @@ export default function ServicesPage() {
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Nội dung dịch vụ rõ ràng hơn"
-                  : "Clearer service presentation"}
+                  ? "Dịch vụ rõ ràng, dễ chọn"
+                  : "Clear service options"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Giúp khách chọn đúng loại chuyến đi"
-                  : "Helps customers choose the right trip type"}
+                  ? "Phù hợp cho sân bay, đi lại địa phương và chuyến riêng"
+                  : "Works for airport, local, and private trips"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Tăng cảm giác chuyên nghiệp của website"
-                  : "Improves the professional feel of the site"}
+                  ? "Liên hệ và đặt xe thuận tiện hơn"
+                  : "Easier communication and booking"}
               </li>
               <li>
                 ✓{" "}
                 {language === "vi"
-                  ? "Dễ kết nối sang trang đặt xe"
-                  : "Easy path into the booking page"}
+                  ? "Kết nối nhanh sang trang đặt xe"
+                  : "Quick path to the booking page"}
               </li>
             </ul>
           </div>
@@ -453,6 +485,58 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      <section style={{ display: "grid", gap: 18 }}>
+        <div className="section-heading">
+          <div>
+            <h2>{content.faqTitle}</h2>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gap: 18,
+          }}
+          className="services-faq-grid"
+        >
+          {content.faqs.map((item) => (
+            <article
+              key={item.q}
+              style={{
+                background: "rgba(255,255,255,0.94)",
+                border: "1px solid rgba(15,23,42,0.08)",
+                borderRadius: 22,
+                padding: 22,
+                boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 18,
+                  letterSpacing: "-0.02em",
+                  color: "#0f172a",
+                }}
+              >
+                {item.q}
+              </h3>
+
+              <p
+                style={{
+                  margin: "10px 0 0",
+                  color: "#64748b",
+                  lineHeight: 1.75,
+                  fontSize: 14,
+                }}
+              >
+                {item.a}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section
         style={{
           background: "rgba(255,255,255,0.94)",
@@ -505,7 +589,8 @@ export default function ServicesPage() {
         @media (max-width: 900px) {
           .services-hero-grid,
           .services-cards-grid,
-          .services-features-grid {
+          .services-features-grid,
+          .services-faq-grid {
             grid-template-columns: 1fr !important;
           }
         }
