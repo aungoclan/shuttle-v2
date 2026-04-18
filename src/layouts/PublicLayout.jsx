@@ -8,6 +8,25 @@ export default function PublicLayout() {
   const { language, setLanguage, t } = useLanguage();
   const { user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+useEffect(() => {
+  if (document.getElementById("tawk-script")) return;
+
+  const script = document.createElement("script");
+  script.id = "tawk-script";
+  script.async = true;
+  script.src = "https://embed.tawk.to/69e3c155917d361c322fb56e/1jmgqmdig";
+  script.charset = "UTF-8";
+  script.setAttribute("crossorigin", "*");
+
+  window.Tawk_API = window.Tawk_API || {};
+  window.Tawk_LoadStart = new Date();
+
+  document.body.appendChild(script);
+
+  return () => {
+    // Giữ widget tồn tại khi chuyển route public để tránh reload lại liên tục
+  };
+}, []);
 
   const footerContent =
     language === "vi"
